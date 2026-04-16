@@ -91,7 +91,7 @@ STM32_dynamixel/Src/ECAT/soes-esi/eeprom.hex
 Flash it with the `eepromtool` utility provided by [SOEM](https://github.com/OpenEtherCATsociety/SOEM):
 
 ```bash
-sudo ./eepromtool 1 <your_network_interface> -wi eeprom.hex
+sudo ./eepromtool <your_network_interface> 1 -wi eeprom.hex
 ```
 
 - The first argument `1` is the EtherCAT slave position on the bus.

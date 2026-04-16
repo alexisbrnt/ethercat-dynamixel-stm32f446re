@@ -1,21 +1,21 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <EtherCATInfo>
   <Vendor>
-    <Id>3809</Id>
+    <Id>NaN</Id>
     <Name LcId="1033">BRU_HIT</Name>
   </Vendor>
   <Descriptions>
     <Groups>
       <Group>
-        <Type>Microchip  Slaves</Type>
-        <Name LcId="1033">Microchip  Slaves</Name>
+        <Type>Microchip Slaves</Type>
+        <Name LcId="1033">lan9252_spi</Name>
       </Group>
     </Groups>
     <Devices>
       <Device Physics="YY ">
-        <Type ProductCode="#xNaN" RevisionNo="#x1">lan9252_spi</Type>
-        <Name LcId="1033">lan9252_spi</Name>
-        <GroupType>Microchip  Slaves</GroupType>
+        <Type ProductCode="#x0" RevisionNo="#x1">ECAT to RS485</Type>
+        <Name LcId="1033">LAN9252 SPI</Name>
+        <GroupType>Microchip Slaves</GroupType>
         <Profile>
           <ProfileNo>5001</ProfileNo>
           <AddInfo>0</AddInfo>
@@ -402,7 +402,7 @@
                 </SubItem>
                 <SubItem>
                   <SubIdx>1</SubIdx>
-                  <Name>firmware_version</Name>
+                  <Name>operating_mode</Name>
                   <Type>UDINT</Type>
                   <BitSize>32</BitSize>
                   <BitOffs>16</BitOffs>
@@ -556,7 +556,7 @@
                 <Type>STRING(11)</Type>
                 <BitSize>88</BitSize>
                 <Info>
-                  <DefaultString>lan9252_spi</DefaultString>
+                  <DefaultString>LAN9252 SPI</DefaultString>
                 </Info>
                 <Flags>
                   <Access>ro</Access>
@@ -602,7 +602,7 @@
                   <SubItem>
                     <Name>Vendor ID</Name>
                     <Info>
-                      <DefaultValue>3809</DefaultValue>
+                      <DefaultValue>0</DefaultValue>
                     </Info>
                   </SubItem>
                   <SubItem>
@@ -620,7 +620,7 @@
                   <SubItem>
                     <Name>Serial Number</Name>
                     <Info>
-                      <DefaultValue>0</DefaultValue>
+                      <DefaultValue>1</DefaultValue>
                     </Info>
                   </SubItem>
                 </Info>
@@ -929,7 +929,7 @@
               </Object>
               <Object>
                 <Index>#x1A07</Index>
-                <Name>firmware_version</Name>
+                <Name>operating_mode</Name>
                 <Type>DT1A07</Type>
                 <BitSize>48</BitSize>
                 <Info>
@@ -940,7 +940,7 @@
                     </Info>
                   </SubItem>
                   <SubItem>
-                    <Name>firmware_version</Name>
+                    <Name>operating_mode</Name>
                     <Info>
                       <DefaultValue>#x60070008</DefaultValue>
                     </Info>
@@ -1115,7 +1115,7 @@
                 <Type>USINT</Type>
                 <BitSize>8</BitSize>
                 <Info>
-                  <DefaultValue>0</DefaultValue>
+                  <DefaultValue>1</DefaultValue>
                 </Info>
                 <Flags>
                   <Access>ro</Access>
@@ -1202,7 +1202,7 @@
               </Object>
               <Object>
                 <Index>#x6007</Index>
-                <Name>firmware_version</Name>
+                <Name>operating_mode</Name>
                 <Type>USINT</Type>
                 <BitSize>8</BitSize>
                 <Info>
@@ -1219,7 +1219,7 @@
                 <Type>USINT</Type>
                 <BitSize>8</BitSize>
                 <Info>
-                  <DefaultValue>0</DefaultValue>
+                  <DefaultValue>1</DefaultValue>
                 </Info>
                 <Flags>
                   <Access>ro</Access>
@@ -1446,12 +1446,12 @@
         </TxPdo>
         <TxPdo Fixed="true" Mandatory="true" Sm="3">
           <Index>#x1A07</Index>
-          <Name>firmware_version</Name>
+          <Name>operating_mode</Name>
           <Entry>
             <Index>#x6007</Index>
             <SubIndex>#x0</SubIndex>
             <BitLen>8</BitLen>
-            <Name>firmware_version</Name>
+            <Name>operating_mode</Name>
             <DataType>USINT</DataType>
           </Entry>
         </TxPdo>

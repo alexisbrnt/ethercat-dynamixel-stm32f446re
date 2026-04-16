@@ -1,0 +1,208 @@
+{
+  "form": {
+    "VendorName": "BRU_HIT",
+    "VendorID": "EE1",
+    "ProductCode": "000000",
+    "ProfileNo": "5001",
+    "RevisionNumber": "0x001",
+    "SerialNumber": "0x001",
+    "HWversion": "0.0.1",
+    "SWversion": "0.0.1",
+    "EEPROMsize": "2048",
+    "RxMailboxOffset": "0x1000",
+    "TxMailboxOffset": "0x1200",
+    "MailboxSize": "512",
+    "SM2Offset": "0x1600",
+    "SM3Offset": "0x1A00",
+    "TextGroupType": "Microchip Slaves",
+    "TextGroupName5": "lan9252_spi",
+    "ImageName": "IMGCBY",
+    "TextDeviceType": "ECAT to RS485",
+    "TextDeviceName": "LAN9252 SPI",
+    "Port0Physical": "Y",
+    "Port1Physical": "Y",
+    "Port2Physical": " ",
+    "Port3Physical": " ",
+    "ESC": "LAN9252",
+    "SPImode": "0",
+    "CoeDetailsEnableSDO": true,
+    "CoeDetailsEnableSDOInfo": true,
+    "CoeDetailsEnablePDOAssign": false,
+    "CoeDetailsEnablePDOConfiguration": false,
+    "CoeDetailsEnableUploadAtStartup": true,
+    "CoeDetailsEnableSDOCompleteAccess": false,
+    "DetailsEnableUseFoE": false
+  },
+  "od": {
+    "sdo": {},
+    "txpdo": {
+      "6000": {
+        "otype": "VAR",
+        "name": "ID_TX",
+        "access": "RO",
+        "dtype": "UNSIGNED8",
+        "pdo_mappings": [
+          "txpdo"
+        ],
+        "value": "1",
+        "data": "&Obj.ID_TX"
+      },
+      "6001": {
+        "otype": "VAR",
+        "name": "state",
+        "access": "RO",
+        "dtype": "UNSIGNED8",
+        "pdo_mappings": [
+          "txpdo"
+        ],
+        "value": "0",
+        "data": "&Obj.state"
+      },
+      "6002": {
+        "otype": "VAR",
+        "name": "present_position",
+        "access": "RO",
+        "dtype": "INTEGER32",
+        "pdo_mappings": [
+          "txpdo"
+        ],
+        "value": "0",
+        "data": "&Obj.present_position"
+      },
+      "6003": {
+        "otype": "VAR",
+        "name": "present_velocity",
+        "access": "RO",
+        "dtype": "INTEGER32",
+        "pdo_mappings": [
+          "txpdo"
+        ],
+        "value": "0",
+        "data": "&Obj.present_velocity"
+      },
+      "6004": {
+        "otype": "VAR",
+        "name": "present_current",
+        "access": "RO",
+        "dtype": "INTEGER16",
+        "pdo_mappings": [
+          "txpdo"
+        ],
+        "value": "0",
+        "data": "&Obj.present_current"
+      },
+      "6005": {
+        "otype": "VAR",
+        "name": "present_temperature",
+        "access": "RO",
+        "dtype": "INTEGER16",
+        "pdo_mappings": [
+          "txpdo"
+        ],
+        "value": "0",
+        "data": "&Obj.present_temperature"
+      },
+      "6006": {
+        "otype": "VAR",
+        "name": "baudrate",
+        "access": "RO",
+        "dtype": "UNSIGNED8",
+        "pdo_mappings": [
+          "txpdo"
+        ],
+        "value": "0",
+        "data": "&Obj.baudrate"
+      },
+      "6007": {
+        "otype": "VAR",
+        "name": "operating_mode",
+        "access": "RO",
+        "dtype": "UNSIGNED8",
+        "pdo_mappings": [
+          "txpdo"
+        ],
+        "value": "0",
+        "data": "&Obj.operating_mode"
+      }
+    },
+    "rxpdo": {
+      "7000": {
+        "otype": "VAR",
+        "name": "ID_RX",
+        "access": "RO",
+        "dtype": "UNSIGNED8",
+        "pdo_mappings": [
+          "rxpdo"
+        ],
+        "value": "1",
+        "data": "&Obj.ID_RX"
+      },
+      "7001": {
+        "otype": "VAR",
+        "name": "control_mode",
+        "access": "RO",
+        "dtype": "UNSIGNED8",
+        "pdo_mappings": [
+          "rxpdo"
+        ],
+        "value": "0",
+        "data": "&Obj.control_mode"
+      },
+      "7002": {
+        "otype": "VAR",
+        "name": "torque_enabled",
+        "access": "RO",
+        "dtype": "UNSIGNED8",
+        "pdo_mappings": [
+          "rxpdo"
+        ],
+        "value": "0",
+        "data": "&Obj.torque_enabled"
+      },
+      "7003": {
+        "otype": "VAR",
+        "name": "LED_STATE",
+        "access": "RO",
+        "dtype": "UNSIGNED8",
+        "pdo_mappings": [
+          "rxpdo"
+        ],
+        "value": "0",
+        "data": "&Obj.LED_STATE"
+      },
+      "7004": {
+        "otype": "VAR",
+        "name": "goal_position",
+        "access": "RO",
+        "dtype": "INTEGER32",
+        "pdo_mappings": [
+          "rxpdo"
+        ],
+        "value": "0",
+        "data": "&Obj.goal_position"
+      },
+      "7005": {
+        "otype": "VAR",
+        "name": "target_velocity",
+        "access": "RO",
+        "dtype": "INTEGER32",
+        "pdo_mappings": [
+          "rxpdo"
+        ],
+        "value": "0",
+        "data": "&Obj.target_velocity"
+      }
+    }
+  },
+  "dc": [
+    {
+      "Name": "DcOff",
+      "Description": "DC unused",
+      "AssignActivate": "#x000",
+      "Sync0cycleTime": "0",
+      "Sync0shiftTime": "0",
+      "Sync1cycleTime": "0",
+      "Sync1shiftTime": "0"
+    }
+  ]
+}
