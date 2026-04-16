@@ -1,0 +1,70 @@
+# =========================
+#  STM32CubeIDE / Eclipse
+# =========================
+# Dossiers de build générés par l'IDE
+Debug/
+Release/
+build/
+*/Debug/
+*/Release/
+
+# Métadonnées du workspace Eclipse (spécifiques à ta machine)
+.metadata/
+RemoteSystemsTempFiles/
+.recommenders/
+
+# Fichiers de configuration utilisateur locaux
+*.launch
+.settings/
+# On garde .project et .cproject : ils sont nécessaires pour rouvrir le projet
+
+# Fichiers générés à la compilation
+*.o
+*.d
+*.obj
+*.elf
+*.bin
+*.hex
+*.map
+*.list
+*.su
+
+# =========================
+#  Python
+# =========================
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+venv/
+env/
+.venv/
+.env
+*.egg-info/
+.pytest_cache/
+.mypy_cache/
+.ipynb_checkpoints/
+
+# =========================
+#  OS
+# =========================
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# =========================
+#  Éditeurs
+# =========================
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# =========================
+#  Secrets / logs
+# =========================
+*.log
+*.env
+secrets.*
