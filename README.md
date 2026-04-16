@@ -72,7 +72,7 @@ EtherCAT Master  ──►  LAN9252 (SPI slave)  ──►  STM32F446RE  ──�
 
 ### Build and flash the STM32 firmware
 
-1. Open **STM32CubeIDE** (version *[TO COMPLETE]*).
+1. Open **STM32CubeIDE** 
 2. `File → Open Projects from File System…` and select the `firmware/` folder.
 3. Build the project: `Project → Build Project` (or `Ctrl+B`).
 4. Connect the Nucleo-F446RE over USB and flash: `Run → Run` (or `F11` for debug mode).
