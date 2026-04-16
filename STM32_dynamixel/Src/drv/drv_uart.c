@@ -14,10 +14,8 @@ uint8_t rec_buf2[NB_CAR_TO_RECEIVE+1]="";
 
 void MX_DMA_Init(void)
 {
-    /* Activer l'horloge DMA2 (USART1 est sur DMA2) */
     __HAL_RCC_DMA2_CLK_ENABLE();
 
-    /* Configurer la priorite NVIC pour DMA2 Stream5 */
     HAL_NVIC_SetPriority(DMA2_Stream5_IRQn, 5, 0);
     HAL_NVIC_EnableIRQ(DMA2_Stream5_IRQn);
 }

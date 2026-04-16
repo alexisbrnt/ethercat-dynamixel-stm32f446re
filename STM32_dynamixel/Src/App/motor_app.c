@@ -94,14 +94,12 @@ void motor_status(motor_status_t *motor_status, motor_command_t *motor_cmd) {
 		motor_status->control_mode_st = 0;
 
 	} else {
-		if (motor_cmd->torque_enabled == 0){
+		if (motor_cmd->torque_enabled == 0) {
 			motor_status->state = MOTOR_STATE_OFF;
 
-		}
-		else if (motor_status->present_velocity < 10) {
+		} else if (motor_status->present_velocity < 10) {
 			motor_status->state = MOTOR_STATE_READY;
-		}
-		else {
+		} else {
 			motor_status->state = MOTOR_STATE_RUNNING;
 		}
 		motor_status->present_position = dynamixel2_read_present_position(
@@ -120,8 +118,6 @@ void motor_status(motor_status_t *motor_status, motor_command_t *motor_cmd) {
 				motor_status->id);
 
 	}
-
-
 
 }
 

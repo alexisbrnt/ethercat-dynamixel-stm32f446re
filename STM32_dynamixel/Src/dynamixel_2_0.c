@@ -10,10 +10,8 @@
 #include "task.h"
 #include "drv_dma.h"
 
-
 #define GET_LOW_ORDER_BYTE(bytes) ((uint8_t)(((uint16_t)(bytes)) & 0xFF))
 #define GET_HIGH_ORDER_BYTE(bytes) ((uint8_t)((((uint16_t)(bytes)) >> 8) & 0xFF))
-
 
 uint16_t update_crc(uint16_t crc_accum, uint8_t *data_blk_ptr,
 		uint16_t data_blk_size);
@@ -24,8 +22,6 @@ bool dynamixel2_parse_status_packet(uint8_t *packet, uint32_t packet_length,
 		bool *crc_check);
 bool dynamixel2_get_status_packet(uint8_t *packet, uint16_t *packet_length);
 
-
-
 //==================================================================================
 // SEND/RECEIVE FRAME TO/FROM DYNAMIXEL
 //==================================================================================
@@ -35,7 +31,6 @@ void max485_send(uint8_t *data, uint32_t length) {
 			GPIO_PIN_SET);
 
 	for (uint32_t i = 0; i < length; i++) {
-		// Attend TXE (registre de transmission vide)
 		while (!(huart1.Instance->SR & UART_FLAG_TXE))
 			;
 		huart1.Instance->DR = data[i];
@@ -48,34 +43,31 @@ void max485_send(uint8_t *data, uint32_t length) {
 }
 
 void dynamixel2_write(uint8_t id, uint16_t address, uint8_t *data,
-        uint16_t data_length) {
-    uint32_t params_length = data_length + 2;
-    uint8_t params[params_length];
+		uint16_t data_length) {
+	uint32_t params_length = data_length + 2;
+	uint8_t params[params_length];
 
-    params[0] = GET_LOW_ORDER_BYTE(address);
-    params[1] = GET_HIGH_ORDER_BYTE(address);
+	params[0] = GET_LOW_ORDER_BYTE(address);
+	params[1] = GET_HIGH_ORDER_BYTE(address);
 
-    for (uint16_t i = 0; i < data_length; i++) {
-        params[2 + i] = data[i];
-    }
+	for (uint16_t i = 0; i < data_length; i++) {
+		params[2 + i] = data[i];
+	}
 
-    dynamixel2_clear_receive_buffer();
-    dynamixel2_send_packet(id, dxl_write, params, params_length);
+	dynamixel2_clear_receive_buffer();
+	dynamixel2_send_packet(id, dxl_write, params, params_length);
 
-    /* Attendre et consommer le status packet du write
-     * au lieu de se fier a un vTaskDelay imprecis */
-    uint8_t dummy_packet[64];
-    uint16_t dummy_length;
-    uint32_t start = HAL_GetTick();
-    while ((HAL_GetTick() - start) < 10) {
-        if (dynamixel2_get_status_packet(dummy_packet, &dummy_length))
-            break;  /* Status packet recu et consomme */
-        if (xTaskGetSchedulerState() == taskSCHEDULER_RUNNING)
-            taskYIELD();
-    }
+	uint8_t dummy_packet[64];
+	uint16_t dummy_length;
+	uint32_t start = HAL_GetTick();
+	while ((HAL_GetTick() - start) < 10) {
+		if (dynamixel2_get_status_packet(dummy_packet, &dummy_length))
+			break;
+		if (xTaskGetSchedulerState() == taskSCHEDULER_RUNNING)
+			taskYIELD();
+	}
 
-    /* Purger tout residu */
-    dynamixel2_clear_receive_buffer();
+	dynamixel2_clear_receive_buffer();
 }
 //==================================================================================
 bool dynamixel2_read(uint8_t id, uint16_t address, uint16_t data_length,
@@ -109,7 +101,6 @@ bool dynamixel2_read(uint8_t id, uint16_t address, uint16_t data_length,
 			return_data, return_data_length, &error, &crc_check);
 	return (id_r == id) && (error == 0x00) && (crc_check);
 }
-
 
 bool dynamixel2_ping(uint8_t id) {
 	uint8_t packet[32];
@@ -190,7 +181,7 @@ void dynamixel2_setOperatingMode(uint8_t id, uint8_t data) {
 
 	dynamixel2_write(id, address, &data, 1);
 }
-uint8_t dynamixel2_getOperatingMode(uint8_t id){
+uint8_t dynamixel2_getOperatingMode(uint8_t id) {
 	uint16_t address = 11;
 	uint8_t return_data[1] = { 0 };
 	uint16_t return_data_length;
@@ -319,12 +310,11 @@ uint8_t dynamixel2_getModelNumber(uint8_t id) {
 	return model_number;
 }
 
-
 //==================================================================================
 // OTHER FUNCTIONS
 //==================================================================================
 void dynamixel2_send_packet(uint8_t id, dynamixel2_instruction_t inst,
-	uint8_t *params, uint16_t params_length) {
+		uint8_t *params, uint16_t params_length) {
 	uint32_t packet_length = 10 + params_length;
 	uint8_t packet[packet_length];
 	packet[0] = 0xFF; /* Header 1. */
@@ -351,36 +341,10 @@ void dynamixel2_send_packet(uint8_t id, dynamixel2_instruction_t inst,
 
 	max485_send(packet, packet_length);
 }
-//==================================================================================
-//void dynamixel2_receive_callback(uint8_t received_data) {
-//	buffer[buffer_index] = received_data;
-//
-//	if (buffer_index < (BUFFER_LENGTH - 1)) {
-//		buffer_index++;
-//	} else {
-//		buffer_index = 0;
-//	}
-//}
 
-//==================================================================================
-//void dynamixel2_clear_receive_buffer(void) {
-//	if (xTaskGetSchedulerState() == taskSCHEDULER_RUNNING)
-//		taskENTER_CRITICAL();
-//	else
-//		__disable_irq();
-//
-//	for (int i = 0; i < BUFFER_LENGTH; i++)
-//		buffer[i] = 0;
-//	buffer_index = 0;
-//
-//	if (xTaskGetSchedulerState() == taskSCHEDULER_RUNNING)
-//		taskEXIT_CRITICAL();
-//	else
-//		__enable_irq();
-//}
-void dynamixel2_clear_receive_buffer(void)
-{
-	dma_clear_buffer();}
+void dynamixel2_clear_receive_buffer(void) {
+	dma_clear_buffer();
+}
 //==================================================================================
 bool dynamixel2_parse_status_packet(uint8_t *packet, uint32_t packet_length,
 		uint8_t *id, uint8_t *params, uint16_t *params_length, uint8_t *error,
@@ -408,24 +372,20 @@ bool dynamixel2_parse_status_packet(uint8_t *packet, uint32_t packet_length,
 }
 //==================================================================================
 
-bool dynamixel2_get_status_packet(uint8_t *packet, uint16_t *packet_length)
-{
+bool dynamixel2_get_status_packet(uint8_t *packet, uint16_t *packet_length) {
 	uint16_t available = dma_available();
 
 	if (available < 11) {
-		/* Trop peu d'octets pour un status packet minimum
-		 * (header 4 + id 1 + length 2 + instr 1 + error 1 + crc 2 = 11) */
+
 		return false;
 	}
 
-	/* Chercher le header 0xFF 0xFF 0xFD */
 	bool header_found = false;
 	uint16_t offset = 0;
 
 	while ((offset + 10) < available) {
-		if (dma_peek(offset) == 0xFF &&
-			dma_peek(offset + 1) == 0xFF &&
-			dma_peek(offset + 2) == 0xFD) {
+		if (dma_peek(offset) == 0xFF && dma_peek(offset + 1) == 0xFF
+				&& dma_peek(offset + 2) == 0xFD) {
 			header_found = true;
 			break;
 		}
@@ -433,37 +393,31 @@ bool dynamixel2_get_status_packet(uint8_t *packet, uint16_t *packet_length)
 	}
 
 	if (!header_found) {
-		/* Pas de header valide, on purge les octets parcourus */
 		dma_skip(offset);
 		return false;
 	}
 
-	/* Si on a saute des octets parasites avant le header, les purger */
 	if (offset > 0) {
 		dma_skip(offset);
 		available -= offset;
 	}
 
-	/* Verifier qu'on a assez d'octets pour lire le champ length */
 	if (available < 7) {
 		return false;
 	}
 
-	uint16_t length_field = dma_peek(5) + ((uint16_t)dma_peek(6) << 8);
-	uint16_t total_packet_length = length_field + 7; /* header(4) + id(1) + length(2) + data(length_field) */
+	uint16_t length_field = dma_peek(5) + ((uint16_t) dma_peek(6) << 8);
+	uint16_t total_packet_length = length_field + 7;
 
 	if (available < total_packet_length) {
-		/* Le packet n'est pas encore complet */
 		return false;
 	}
 
-	/* Copier le packet complet */
 	*packet_length = total_packet_length;
 	for (uint16_t i = 0; i < total_packet_length; i++) {
 		packet[i] = dma_peek(i);
 	}
 
-	/* Avancer read_index apres le packet consomme */
 	dma_skip(total_packet_length);
 
 	return true;
