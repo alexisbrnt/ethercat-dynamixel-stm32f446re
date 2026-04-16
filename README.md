@@ -2,6 +2,14 @@
 
 > An embedded **EtherCAT slave node** built around the STM32F446RE, driving a Dynamixel XM430-W350 servomotor in real time.
 
+![STM32](https://img.shields.io/badge/STM32-F446RE-03234B?logo=stmicroelectronics&logoColor=white)
+![EtherCAT](https://img.shields.io/badge/EtherCAT-slave-E30613)
+![LAN9252](https://img.shields.io/badge/Microchip-LAN9252-EE3524)
+![Dynamixel](https://img.shields.io/badge/Dynamixel-XM430--W350-E60022)
+![Protocol](https://img.shields.io/badge/Protocol-2.0-blue)
+
+---
+
 ## 📖 About
 
 An embedded EtherCAT slave node based on the **STM32F446RE** microcontroller, designed to drive a **Dynamixel XM430-W350** servomotor through the Dynamixel Protocol 2.0. The STM32 interfaces with an EtherCAT master over SPI (via a LAN9252 slave controller) and translates incoming commands into UART/RS-485 frames sent to the motor.
@@ -70,14 +78,35 @@ EtherCAT Master  ──►  LAN9252 (SPI slave)  ──►  STM32F446RE  ──�
 
 ## 🚀 Usage
 
-### Build and flash the STM32 firmware
+### 1. Flash the LAN9252 EEPROM (one-time setup)
+
+Before the EtherCAT master can discover the slave with the correct identity (vendor ID, product code, PDO mapping, etc.), the LAN9252 EEPROM must be programmed with the project's ESI (EtherCAT Slave Information) binary.
+
+The EEPROM image is provided in the firmware sources:
+
+```
+STM32_dynamixel/Src/ECAT/soes-esi/eeprom.hex
+```
+
+Flash it with the `eepromtool` utility provided by [SOEM](https://github.com/OpenEtherCATsociety/SOEM):
+
+```bash
+sudo ./eepromtool 1 <your_network_interface> -wi eeprom.hex
+```
+
+- The first argument `1` is the EtherCAT slave position on the bus.
+- Replace `<your_network_interface>` (e.g. `eth0`) with the interface connected to the LAN9252.
+
+> 💡 This step is only required **once per LAN9252 board**, or whenever the ESI / PDO mapping is changed.
+
+### 2. Build and flash the STM32 firmware
 
 1. Open **STM32CubeIDE** 
 2. `File → Open Projects from File System…` and select the `firmware/` folder.
 3. Build the project: `Project → Build Project` (or `Ctrl+B`).
 4. Connect the Nucleo-F446RE over USB and flash: `Run → Run` (or `F11` for debug mode).
 
-### Run the EtherCAT master and GUI
+### 3. Run the EtherCAT master and GUI
 
 The `ec_motor.py` script is a single-program tool that launches the **EtherCAT master** (using `pysoem`) and a **PyQt5 graphical interface** in the same process. The master runs its cyclic loop (2 ms period) in a dedicated thread and communicates with the GUI through Qt signals.
 
