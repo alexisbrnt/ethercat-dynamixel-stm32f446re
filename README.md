@@ -49,10 +49,10 @@ EtherCAT Master  ──►  LAN9252 (SPI slave)  ──►  STM32F446RE  ──�
 
 | STM32 Pin | Function | Connected to |
 |---|---|---|
-| **PA5** | SPI SCK | EVB-LAN9252 SCK |
-| **PA6** | SPI MISO | EVB-LAN9252 MISO |
-| **PA7** | SPI MOSI | EVB-LAN9252 MOSI |
-| **PB6** | SPI CS | EVB-LAN9252 CS |
+| **PA5** | SPI SCK | LAN9252 SCK |
+| **PA6** | SPI MISO | LAN9252 MISO |
+| **PA7** | SPI MOSI | LAN9252 MOSI |
+| **PB6** | SPI CS | LAN9252 CS |
 
 ---
 
