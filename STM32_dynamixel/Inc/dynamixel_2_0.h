@@ -24,6 +24,7 @@ extern UART_HandleTypeDef huart1;
 
 #define VELOCITY_MODE 	1
 #define POSITION_MODE	3
+#define CURRENT_MODE	0
 #define EXT_POS_MODE	4
 #define PWM_MODE		16
 
@@ -51,32 +52,30 @@ typedef enum
   dxl_fast_bulk_read = 0x9A
 } dynamixel2_instruction_t;
 
+
 void max485_send(uint8_t *data, uint32_t length);
-
-void dynamixel2_write(uint8_t id, uint16_t address, uint8_t *data, uint16_t data_length);
-bool dynamixel2_read(uint8_t id, uint16_t address, uint16_t data_length, uint8_t *return_data, uint16_t *return_data_length);
+void dynamixel2_write(uint8_t id, uint16_t address, uint8_t *data,
+		uint16_t data_length);
+bool dynamixel2_read(uint8_t id, uint16_t address, uint16_t data_length,
+		uint8_t *return_data, uint16_t *return_data_length);
+bool dynamixel2_ping(uint8_t id) ;
 void dynamixel2_reset(uint8_t id);
-
-int32_t dynamixel2_read_present_position(uint8_t id);
-int32_t dynamixel2_read_present_velocity(uint8_t id);
-bool dynamixel2_ping(uint8_t id);
-void dynamixel2_set_goal_position(uint8_t id, int32_t position);
 void dynamixel2_set_torque_enable(uint8_t id, uint8_t enable);
-void dynamixel2_set_LED(uint8_t id, bool enable);
-void dynamixel2_setOperatingMode(uint8_t id, uint8_t data);
+void dynamixel2_set_LED(uint8_t id, uint8_t enable);
+void dynamixel2_change_id(int id, uint8_t val);
+void dynamixel2_setOperatingMode(uint8_t id, uint8_t operating_mode);
 uint8_t dynamixel2_getOperatingMode(uint8_t id);
-void dynamixel2_set_goal_velocity(uint8_t, int32_t velocity);
-void dynamixel2_setBaudrate(uint8_t id, uint8_t baudrate);
-int16_t dynamixel2_read_present_current(uint8_t id);
-int16_t dynamixel2_read_present_temperature(uint8_t id);
+void dynamixel2_set_goal_position(uint8_t id, int32_t position);
+int32_t dynamixel2_read_present_position(uint8_t id);
+void dynamixel2_set_goal_velocity(uint8_t id, int32_t velocity);
+int32_t dynamixel2_read_present_velocity(uint8_t id) ;
+int16_t dynamixel2_read_present_current(uint8_t id) ;
+uint8_t dynamixel2_ismoving(uint8_t id);
+int16_t dynamixel2_read_present_temperature(uint8_t id) ;
 uint8_t dynamixel2_get_BaudRate(uint8_t id);
+void dynamixel2_setBaudrate(uint8_t id, uint8_t baudrate);
 uint8_t dynamixel2_getFirmwareVersion(uint8_t id);
 uint8_t dynamixel2_getModelNumber(uint8_t id);
-void dynamixel2_receive_callback(uint8_t received_data);
-void dynamixel2_clear_receive_buffer(void);
-
-void dynamixel2_dma_init(void);
-
 uint8_t dynamixel2_getTemplimit(uint8_t id);
 void dynamixel2_setTempLimit(uint8_t id, uint8_t temp_lim);
 int16_t dynamixel2_getCurrentLimit(uint8_t id);
@@ -87,7 +86,17 @@ int32_t dynamixel2_getMinPositionLimit(uint8_t id);
 void dynamixel2_setMinPositionLimit(uint8_t id, int32_t min_position_lim);
 int32_t dynamixel2_getVelocityLimit(uint8_t id);
 void dynamixel2_setVelocityLimit(uint8_t id, int32_t velocity_lim);
-int32_t dynamixel2_read_essentiels(uint8_t id);
+uint8_t dynamixel2_hardware_error(uint8_t id);
+void dynamixel2_send_packet(uint8_t id, dynamixel2_instruction_t inst,
+		uint8_t *params, uint16_t params_length);
+void dynamixel2_clear_receive_buffer(void);
+bool dynamixel2_parse_status_packet(uint8_t *packet, uint32_t packet_length,
+		uint8_t *id, uint8_t *params, uint16_t *params_length, uint8_t *error,
+		bool *crc_check);
+bool dynamixel2_get_status_packet(uint8_t *packet, uint16_t *packet_length);
+uint16_t update_crc(uint16_t crc_accum, uint8_t *data_blk_ptr,
+		uint16_t data_blk_size);
+
 
 
 #endif /* __DYNAMIXEL_2_0_H */

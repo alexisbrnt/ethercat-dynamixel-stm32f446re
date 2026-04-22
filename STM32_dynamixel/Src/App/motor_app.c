@@ -27,17 +27,62 @@ void motor_init(uint8_t id, motor_command_t *motor_cmd,
 	motor_status->state = MOTOR_STATE_INIT;
 
 	if (dynamixel2_ping(id)) {
+		dynamixel2_setMaxPositionLimit(id, 4095);
+		dynamixel2_setMinPositionLimit(id, 0);
+
 		dynamixel2_set_torque_enable(id, 0);
+		dynamixel2_setOperatingMode(id, VELOCITY_MODE);
+		dynamixel2_set_torque_enable(id, 1);
+		dynamixel2_set_goal_velocity(id, 0);
+		//dynamixel2_set_goal_position(id, motor_cmd->target_position);
+		uint8_t cnt = 0;
+		uint32_t t0 = HAL_GetTick();
+		do {
+			dynamixel2_set_goal_velocity(id, 50);
+			HAL_Delay(50);
+			cnt = (abs(dynamixel2_read_present_current(id)) >= 5) ? cnt+1 : 0;
+			if (HAL_GetTick() - t0 > 10000) { /* timeout handler */ break; }
+		} while(cnt < 2);
+		dynamixel2_set_goal_velocity(id, 0);
+		HAL_Delay(500);
+
+		motor_status->Max_pos_lim = (((dynamixel2_read_present_position(id) % 4096) + 4096) % 4096)-70;
+		dynamixel2_set_torque_enable(id, 0);           // ← EEPROM write
+		dynamixel2_setMaxPositionLimit(id, motor_status->Max_pos_lim);
+		dynamixel2_set_torque_enable(id, 1);
+		HAL_Delay(2000);
+
+		// Recherche limite MIN
+		cnt = 0; t0 = HAL_GetTick();
+		do {
+			dynamixel2_set_goal_velocity(id, -50);     // ← underscore corrigé
+			HAL_Delay(50);
+			cnt = (abs(dynamixel2_read_present_current(id)) >= 7) ? cnt+1 : 0;
+			if (HAL_GetTick() - t0 > 10000) { /* timeout handler */ break; }
+		} while(cnt < 3);
+		dynamixel2_set_goal_velocity(id, 0);
+		HAL_Delay(500);
+
+		motor_status->Min_pos_lim = (((dynamixel2_read_present_position(id) % 4096) + 4096) % 4096)+70;
+		dynamixel2_set_torque_enable(id, 0);           // ← EEPROM write
+		dynamixel2_setMinPositionLimit(id, motor_status->Min_pos_lim);
 		dynamixel2_setOperatingMode(id, motor_cmd->control_mode);
 		dynamixel2_set_torque_enable(id, 1);
-		dynamixel2_set_goal_position(id, motor_cmd->target_position);
+		int32_t moyenne = (motor_status -> Max_pos_lim + motor_status->Min_pos_lim)/2;
+		dynamixel2_set_goal_position(id, moyenne);
+		HAL_Delay(500);
+		dynamixel2_set_torque_enable(id, motor_cmd->torque_enabled);
+
+
+
+		motor_status->Current_lim = dynamixel2_getCurrentLimit(id);
+		motor_status->Velocity_lim = dynamixel2_getVelocityLimit(id);
 		motor_status->control_mode_st = dynamixel2_getOperatingMode(id);
 		motor_status->baudrate = dynamixel2_get_BaudRate(id);
 		motor_cmd->torque_enabled = true;
 
 		motor_status->state = MOTOR_STATE_READY;
 		//dynamixel2_set_LED(id, motor_cmd->LED_state);
-		dynamixel2_set_torque_enable(id, motor_cmd->torque_enabled);
 		term_printf("Dynamixel XM430-W350 OK!\r\n");
 		term_printf("\n\r");
 	} else {
@@ -102,6 +147,8 @@ void motor_status(motor_status_t *motor_status, motor_command_t *motor_cmd) {
 		} else {
 			motor_status->state = MOTOR_STATE_RUNNING;
 		}
+		motor_status->Moving = dynamixel2_ismoving(motor_status->id);
+
 		motor_status->present_position = dynamixel2_read_present_position(
 				motor_status->id);
 
@@ -116,6 +163,8 @@ void motor_status(motor_status_t *motor_status, motor_command_t *motor_cmd) {
 
 		motor_status->control_mode_st = dynamixel2_getOperatingMode(
 				motor_status->id);
+		motor_status->Hardware_error_status = dynamixel2_hardware_error(motor_status->id);
+
 
 	}
 

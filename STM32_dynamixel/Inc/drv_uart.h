@@ -21,6 +21,8 @@ void num2str(char *s, unsigned int number, unsigned int base, unsigned int size,
 unsigned int str2num(char *s, unsigned base);
 void term_printf(const char* fmt, ...);
 void sendFrame(unsigned char* s, int size);
+void dynamixel2_dma_init(void);
+
 
 extern UART_HandleTypeDef huart1;
 extern UART_HandleTypeDef huart2;

@@ -1,5 +1,5 @@
 """
-Motor IHM + EtherCAT Bridge (fused, no ROS2)
+Motor IHM + EtherCAT Bridge 
 =============================================
 Single-program version: the PyQt5 GUI communicates directly
 with the EtherCAT master via Qt signals, no middleware needed.
@@ -43,6 +43,9 @@ class EthercatThread(QtCore.QThread):
             "LED_state": 0,
             "target_position": 0,
             "target_velocity": 0,
+            "target_current": 0,
+            "reboot": 0,
+            "emergency_stop": 0,
         }
 
         self.master = None
@@ -95,7 +98,19 @@ class EthercatThread(QtCore.QThread):
     # ---------- pack / unpack ----------
     @staticmethod
     def _pack_outputs(cmd: dict) -> bytes:
-        buf = bytearray(12)
+        """
+        Outputs struct (packed, 16 bytes):
+          uint8_t  ID_RX           [0]
+          uint8_t  control_mode    [1]
+          uint8_t  torque_enabled  [2]
+          uint8_t  LED_STATE       [3]
+          int32_t  goal_position   [4:8]
+          int32_t  target_velocity [8:12]
+          int16_t  target_current  [12:14]
+          uint8_t  Reboot          [14]
+          uint8_t  Emergency_stop  [15]
+        """
+        buf = bytearray(16)
         buf[0] = cmd["id"] & 0xFF
         buf[1] = cmd["control_mode"] & 0xFF
         buf[2] = cmd["torque_enabled"] & 0xFF
@@ -104,25 +119,31 @@ class EthercatThread(QtCore.QThread):
             4, byteorder='little', signed=True)
         buf[8:12] = int(cmd["target_velocity"]).to_bytes(
             4, byteorder='little', signed=True)
+        buf[12:14]= int(cmd.get("target_current", 0)).to_bytes(2, byteorder='little', signed=True)
+        buf[14]   = cmd.get("reboot", 0) & 0xFF
+        buf[15]   = cmd.get("emergency_stop", 0) & 0xFF
         return bytes(buf)
 
     @staticmethod
     def _unpack_inputs(buf: bytes) -> dict:
-        if len(buf) < 16:
+        
+        if len(buf) < 32:
             raise ValueError(f"Input buffer too short: {len(buf)}")
         return {
-            "id": buf[0],
-            "state": buf[1],
-            "present_position": int.from_bytes(
-                buf[2:6], byteorder='little', signed=True),
-            "present_velocity": int.from_bytes(
-                buf[6:10], byteorder='little', signed=True),
-            "present_current": int.from_bytes(
-                buf[10:12], byteorder='little', signed=True),
-            "present_temperature": int.from_bytes(
-                buf[12:14], byteorder='little', signed=True),
-            "baudrate": buf[14],
-            "firmware_version": buf[15],
+            "id":                    buf[0],
+            "state":                 buf[1],
+            "present_position":      int.from_bytes(buf[2:6],   byteorder='little', signed=True),
+            "present_velocity":      int.from_bytes(buf[6:10],  byteorder='little', signed=True),
+            "present_current":       int.from_bytes(buf[10:12], byteorder='little', signed=True),
+            "present_temperature":   int.from_bytes(buf[12:14], byteorder='little', signed=True),
+            "baudrate":              buf[14],
+            "operating_mode":        buf[15],
+            "max_pos_lim":           int.from_bytes(buf[16:20], byteorder='little', signed=True),
+            "min_pos_lim":           int.from_bytes(buf[20:24], byteorder='little', signed=True),
+            "velocity_lim":          int.from_bytes(buf[24:28], byteorder='little', signed=True),
+            "current_lim":           int.from_bytes(buf[28:30], byteorder='little', signed=True),
+            "hardware_error_status": buf[30],
+            "moving":                buf[31],
         }
 
     # ---------- main loop ----------
@@ -185,7 +206,7 @@ class MainWindow(QMainWindow):
     }
 
     OPERATING_MODE_LABELS = {
-        0: "Unknown",
+        0: "Current",
         1: "Velocity",
         3: "Position",
     }
@@ -200,10 +221,13 @@ class MainWindow(QMainWindow):
         6: "4M",
     }
 
+    # Sentinel: limits not yet received from slave
+    _LIMITS_INITIALIZED = False
+
     def __init__(self, ifname: str = "enx207bd2b452c6"):
         super().__init__()
         self.setWindowTitle("Motor Master IHM")
-        self.setMinimumSize(900, 600)
+        self.setMinimumSize(1000, 650)
 
         # EtherCAT thread (replaces ROS2)
         self.ec_thread = EthercatThread(ifname)
@@ -229,9 +253,16 @@ class MainWindow(QMainWindow):
         self.target_position_slider = QSlider(Qt.Horizontal)
         self.target_position_slider.setMinimum(0)
         self.target_position_slider.setMaximum(4095)
-        self.position_label = QLabel("0")
-        self.target_position_slider.valueChanged.connect(
-            self.update_position_label)
+        self.target_position_slider.setEnabled(False)  # disabled until limits known
+        self.position_label = QLabel("– / –")          # shows  value [min, max]
+        self.target_position_slider.valueChanged.connect(self.update_position_label)
+
+        self.btn_ferme  = QPushButton("Fermé")
+        self.btn_ferme.setFixedWidth(80)
+        self.btn_ouvert = QPushButton("Ouvert")
+        self.btn_ouvert.setFixedWidth(80)
+        self.btn_ferme.clicked.connect(self.go_to_min)
+        self.btn_ouvert.clicked.connect(self.go_to_max)
 
         self.target_velocity_slider = QSlider(Qt.Horizontal)
         self.target_velocity_slider.setMinimum(-200)
@@ -247,6 +278,7 @@ class MainWindow(QMainWindow):
         self.control_mode_combo = QComboBox()
         self.control_mode_combo.addItem("Position", 3)
         self.control_mode_combo.addItem("Velocity", 1)
+        self.control_mode_combo.addItem("Current", 0)
 
         self.torque_switch = self._create_switch("Torque")
         self.led_switch = self._create_switch("LED")
@@ -257,6 +289,9 @@ class MainWindow(QMainWindow):
         command_layout.addWidget(QLabel("Target position"), 1, 0)
         command_layout.addWidget(self.target_position_slider, 1, 1)
         command_layout.addWidget(self.position_label, 1, 2)
+        command_layout.addWidget(self.btn_ferme,  1, 3)   # ← nouveau
+        command_layout.addWidget(self.btn_ouvert, 1, 4)
+
 
         command_layout.addWidget(QLabel("Target velocity"), 2, 0)
         command_layout.addWidget(self.target_velocity_slider, 2, 1)
@@ -282,30 +317,42 @@ class MainWindow(QMainWindow):
 
         self.id_value = QLabel("0")
         self.state_value = QLabel("UNKNOWN")
+        self.operating_mode_value  = QLabel("–")   
+        self.moving_value          = QLabel("–")   
+        self.hw_error_value        = QLabel("–")
         self.firmware_version = QLabel("0")
         self.baudrate_value = QLabel("0")
 
+        self.max_pos_lim_value  = QLabel("–")
+        self.min_pos_lim_value  = QLabel("–")
+        self.velocity_lim_value = QLabel("–")
+        self.current_lim_value  = QLabel("–")
+
         self.raw_status_label = QLabel("Waiting for EtherCAT…")
         self.raw_status_label.setWordWrap(True)
+        
+        row = 0
+        def _add(label, widget):
+            nonlocal row
+            status_layout.addWidget(QLabel(label), row, 0)
+            status_layout.addWidget(widget,         row, 1)
+            row += 1
 
-        status_layout.addWidget(QLabel("ID"), 0, 0)
-        status_layout.addWidget(self.id_value, 0, 1)
-        status_layout.addWidget(QLabel("Present position"), 1, 0)
-        status_layout.addWidget(self.present_position_lcd, 1, 1)
-        status_layout.addWidget(QLabel("Present velocity"), 2, 0)
-        status_layout.addWidget(self.present_velocity_lcd, 2, 1)
-        status_layout.addWidget(QLabel("Present current"), 3, 0)
-        status_layout.addWidget(self.present_current_lcd, 3, 1)
-        status_layout.addWidget(QLabel("Present temperature"), 4, 0)
-        status_layout.addWidget(self.present_temperature_lcd, 4, 1)
-        status_layout.addWidget(QLabel("State"), 5, 0)
-        status_layout.addWidget(self.state_value, 5, 1)
-        status_layout.addWidget(QLabel("Operating Mode"), 6, 0)
-        status_layout.addWidget(self.firmware_version, 6, 1)
-        status_layout.addWidget(QLabel("Baudrate"), 8, 0)
-        status_layout.addWidget(self.baudrate_value, 8, 1)
-        status_layout.addWidget(QLabel("Raw status"), 9, 0)
-        status_layout.addWidget(self.raw_status_label, 9, 1)
+        _add("ID",                   self.id_value)
+        _add("Present position",     self.present_position_lcd)
+        _add("Present velocity",     self.present_velocity_lcd)
+        _add("Present current",      self.present_current_lcd)
+        _add("Present temperature",  self.present_temperature_lcd)
+        _add("State",                self.state_value)
+        _add("Operating mode",       self.operating_mode_value)
+        _add("Baudrate",             self.baudrate_value)
+        _add("Moving",               self.moving_value)
+        _add("HW error status",      self.hw_error_value)
+        _add("Max pos limit",        self.max_pos_lim_value)   
+        _add("Min pos limit",        self.min_pos_lim_value)   
+        _add("Velocity limit",       self.velocity_lim_value)  
+        _add("Current limit",        self.current_lim_value)   
+        _add("Raw status",           self.raw_status_label)
 
         status_group.setLayout(status_layout)
 
@@ -344,6 +391,8 @@ class MainWindow(QMainWindow):
         return cb
 
     def update_position_label(self, value):
+        lo = self.target_position_slider.minimum()
+        hi = self.target_position_slider.maximum()
         self.position_label.setText(str(value))
 
     def update_velocity_label(self, value):
@@ -369,12 +418,15 @@ class MainWindow(QMainWindow):
                else self.led_switch.isChecked())
 
         return {
-            "id": int(self.id_edit.text().strip() or "1"),
-            "control_mode": mode,
+            "id":             int(self.id_edit.text().strip() or "1"),
+            "control_mode":   mode,
             "torque_enabled": int(torque),
-            "LED_state": int(led),
+            "LED_state":      int(led),
             "target_position": pos,
             "target_velocity": vel,
+            "target_current":  0,
+            "reboot":          0,
+            "emergency_stop":  0,
         }
 
     def send_command(self, _=None):
@@ -429,14 +481,42 @@ class MainWindow(QMainWindow):
             self.state_value.setText(
                 self.STATE_LABELS.get(raw_state, f"UNKNOWN ({raw_state})"))
 
-            raw_mode = int(status.get("firmware_version", 0))
-            self.firmware_version.setText(
-                self.OPERATING_MODE_LABELS.get(
-                    raw_mode, f"Unknown ({raw_mode})"))
+            raw_mode = int(status.get("operating_mode", 0))
+            self.operating_mode_value.setText(
+                self.OPERATING_MODE_LABELS.get(raw_mode, f"Unknown ({raw_mode})"))
 
             raw_baud = int(status.get("baudrate", 0))
             self.baudrate_value.setText(
                 self.BAUDRATE_LABELS.get(raw_baud, f"Unknown ({raw_baud})"))
+            
+            self.moving_value.setText("Yes" if status.get("moving") else "No")
+            self.hw_error_value.setText(
+                f"0x{status.get('hardware_error_status', 0):02X}")
+            
+            max_lim = int(status.get("max_pos_lim", 0))
+            min_lim = int(status.get("min_pos_lim", 0))
+            vel_lim = int(status.get("velocity_lim", 0))
+            cur_lim = int(status.get("current_lim", 0))
+
+            self.max_pos_lim_value.setText(str(max_lim))
+            self.min_pos_lim_value.setText(str(min_lim))
+            self.velocity_lim_value.setText(str(vel_lim))
+            self.current_lim_value.setText(str(cur_lim))
+
+            # Apply limits to slider only once (or whenever they change)
+            if max_lim != min_lim and (
+                max_lim != self.target_position_slider.maximum() or
+                min_lim != self.target_position_slider.minimum()
+            ):
+                current_val = self.target_position_slider.value()
+                self.target_position_slider.setMinimum(min_lim)
+                self.target_position_slider.setMaximum(max_lim)
+                # Clamp current value inside new range
+                self.target_position_slider.setValue(
+                    max(min_lim, min(max_lim, current_val)))
+                self._LIMITS_INITIALIZED = True
+                self.statusBar().showMessage(
+                    f"EtherCAT connected — position limits set: [{min_lim}, {max_lim}]")
 
             # Disable controls on error
             in_error = (raw_state == 4)
@@ -459,6 +539,14 @@ class MainWindow(QMainWindow):
 
     def reset_velocity(self):
         self.target_velocity_slider.setValue(0)
+        self.send_command()
+    
+    def go_to_min(self):
+        self.target_position_slider.setValue(self.target_position_slider.minimum())
+        self.send_command()
+
+    def go_to_max(self):
+        self.target_position_slider.setValue(self.target_position_slider.maximum())
         self.send_command()
 
     # -------------------- cleanup --------------------
