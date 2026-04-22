@@ -18,15 +18,19 @@ typedef enum
 	MOTOR_STATE_RUNNING,
 	MOTOR_STATE_ERROR,
 	MOTOR_STATE_OFF,
+	MOTOR_EMERGENCY_STOP,
 } motor_state_t;
 
 typedef struct{
 	uint8_t id;
 	int32_t target_position;
 	int32_t target_velocity;
+	int16_t target_current;
 	uint8_t control_mode;
 	uint8_t torque_enabled;
 	uint8_t LED_state;
+	uint8_t reboot;
+	uint8_t emergency_stop;
 } motor_command_t;
 
 typedef struct{
@@ -38,6 +42,13 @@ typedef struct{
 	motor_state_t state;
 	uint8_t control_mode_st;
 	uint8_t baudrate;
+	int32_t Max_pos_lim;
+	int32_t Min_pos_lim;
+	int32_t Velocity_lim;
+	int16_t Current_lim;
+	uint8_t Hardware_error_status;
+	uint8_t Moving;
+
 } motor_status_t;
 
 

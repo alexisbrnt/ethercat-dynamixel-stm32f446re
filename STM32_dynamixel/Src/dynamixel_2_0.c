@@ -186,7 +186,7 @@ uint8_t dynamixel2_getOperatingMode(uint8_t id) {
 	uint8_t return_data[1] = { 0 };
 	uint16_t return_data_length;
 	dynamixel2_read(id, address, 1, return_data, &return_data_length);
-	int32_t Operating_mode = return_data[0];
+	uint8_t Operating_mode = return_data[0];
 	return Operating_mode;
 }
 //==================================================================================
@@ -252,6 +252,20 @@ int16_t dynamixel2_read_present_current(uint8_t id) {
 
 	return current;
 }
+
+/*int32_t dynamixel2_read_essentiels(uint8_t id){
+	uint16_t address = 126;
+	uint8_t return_data[10];
+	uint8_t return_data_length;
+	dynamixel2_read(id, address, 10, return_data, & return_data_length);
+	int16_t current = return_data[0] + ((return_data[1]<<8)&0xFF00);
+	int32_t velocity = ((return_data[2]<<16)&0xFF0000) + ((return_data[3]<<24) & 0xFF000000)
+			+ ((return_data[4]<<32)& 0xFF00000000) + ((return_data[5]<<40)& 0xFF0000000000);
+	int32_t position = ((return_data[6]<<48) &0xFF000000000000)+((return_data[7]<<56)&0xFF00000000000000)+
+			((return_data[8]<<64)&0xFF00000000000000)+((return_data[9]<<72)&0xFF00000000000000);
+	return current, velocity, position;
+}*/
+
 //==================================================================================
 // TEMPERATURE
 //==================================================================================
@@ -281,14 +295,13 @@ uint8_t dynamixel2_get_BaudRate(uint8_t id) {
 	uint8_t return_data[1] = { 0 };
 	uint16_t return_data_length;
 	dynamixel2_read(id, address, 1, return_data, &return_data_length);
-	int32_t baudrate = return_data[0];
+	uint8_t baudrate = return_data[0];
 	return baudrate;
 }
 
-void dynamixel2_setBaudrate(uint8_t id, int32_t baudrate) {
+void dynamixel2_setBaudrate(uint8_t id, uint8_t baudrate) {
 	uint16_t address = 8;
-	uint8_t data = baudrate;
-	dynamixel2_write(id, address, &data, 1);
+	dynamixel2_write(id, address, &baudrate, 1);
 }
 //==================================================================================
 // DYNAMIXEL DATA
@@ -298,7 +311,7 @@ uint8_t dynamixel2_getFirmwareVersion(uint8_t id) {
 	uint8_t return_data[1];
 	uint16_t return_data_length;
 	dynamixel2_read(id, address, 1, return_data, &return_data_length);
-	int32_t firmware_version = return_data[0];
+	uint8_t firmware_version = return_data[0];
 	return firmware_version;
 }
 uint8_t dynamixel2_getModelNumber(uint8_t id) {
@@ -306,8 +319,104 @@ uint8_t dynamixel2_getModelNumber(uint8_t id) {
 	uint8_t return_data[2];
 	uint16_t return_data_length;
 	dynamixel2_read(id, address, 2, return_data, &return_data_length);
-	int32_t model_number = return_data[0] + ((return_data[1] << 8) & 0xFF00);
+	uint8_t model_number = return_data[0] + ((return_data[1] << 8) & 0xFF00);
 	return model_number;
+}
+//==================================================================================
+// DYNAMIXEL LIMITS
+//==================================================================================
+uint8_t dynamixel2_getTemplimit(uint8_t id) {
+	uint16_t address = 31;
+	uint8_t return_data[1];
+	uint16_t return_data_length;
+	dynamixel2_read(id, address, 1, return_data, &return_data_length);
+	uint8_t temp_lim = return_data[0];
+	return temp_lim;
+}
+
+void dynamixel2_setTempLimit(uint8_t id, uint8_t temp_lim) {
+	uint16_t address = 31;
+	dynamixel2_write(id, address, &temp_lim, 1);
+}
+
+int16_t dynamixel2_getCurrentLimit(uint8_t id) {
+	uint16_t address = 38;
+	uint8_t return_data[2];
+	uint16_t return_data_length;
+	dynamixel2_read(id, address, 2, return_data, &return_data_length);
+	int16_t current_lim = return_data[0] + ((return_data[1] << 8) & 0xFF00);
+	return current_lim;
+}
+
+void dynamixel2_setCurrentLimit(uint8_t id, int16_t current_lim) {
+	uint16_t address = 38;
+	uint8_t data[2];
+	data[0] = (uint8_t) (current_lim & 0xFF);
+	data[1] = (uint8_t) ((current_lim >> 8) & 0xFF);
+	dynamixel2_write(id, address, data, 2);
+}
+
+int32_t dynamixel2_getMaxPositionLimit(uint8_t id) {
+	uint16_t address = 48;
+	uint8_t return_data[4];
+	uint16_t return_data_length;
+	dynamixel2_read(id, address, 4, return_data, &return_data_length);
+	int32_t max_position_lim = return_data[0] + ((return_data[1] << 8) & 0xFF00)
+					+ ((return_data[2] << 16) & 0xFF0000)
+					+ ((return_data[3] << 24) & 0xFF000000);
+	return max_position_lim;
+}
+
+void dynamixel2_setMaxPositionLimit(uint8_t id, int32_t max_position_lim){
+	uint16_t address = 48;
+	uint8_t data[4];
+	data[0] = (uint8_t) (max_position_lim & 0xFF);
+	data[1] = (uint8_t) ((max_position_lim >> 8) & 0xFF);
+	data[2] = (uint8_t) ((max_position_lim >> 16) & 0xFF);
+	data[3] = (uint8_t) ((max_position_lim >> 24) & 0xFF);
+	dynamixel2_write(id, address, data, 4);
+}
+
+int32_t dynamixel2_getMinPositionLimit(uint8_t id) {
+	uint16_t address = 52;
+	uint8_t return_data[4];
+	uint16_t return_data_length;
+	dynamixel2_read(id, address, 4, return_data, &return_data_length);
+	int32_t min_position_lim = return_data[0] + ((return_data[1] << 8) & 0xFF00)
+					+ ((return_data[2] << 16) & 0xFF0000)
+					+ ((return_data[3] << 24) & 0xFF000000);
+	return min_position_lim;
+}
+
+void dynamixel2_setMinPositionLimit(uint8_t id, int32_t min_position_lim){
+	uint16_t address = 52;
+	uint8_t data[4];
+	data[0] = (uint8_t) (min_position_lim & 0xFF);
+	data[1] = (uint8_t) ((min_position_lim >> 8) & 0xFF);
+	data[2] = (uint8_t) ((min_position_lim >> 16) & 0xFF);
+	data[3] = (uint8_t) ((min_position_lim >> 24) & 0xFF);
+	dynamixel2_write(id, address, data, 4);
+}
+
+int32_t dynamixel2_getVelocityLimit(uint8_t id){
+	uint16_t address = 44;
+	uint8_t return_data[4];
+	uint16_t return_data_length;
+	dynamixel2_read(id, address, 4, return_data, &return_data_length);
+	int32_t velocity_lim = return_data[0] + ((return_data[1] << 8) & 0xFF00)
+					+ ((return_data[2] << 16) & 0xFF0000)
+					+ ((return_data[3] << 24) & 0xFF000000);
+	return velocity_lim;
+}
+
+void dynamixel2_setVelocityLimit(uint8_t id, int32_t velocity_lim){
+	uint16_t address = 44;
+	uint8_t data[4];
+	data[0] = (uint8_t) (velocity_lim & 0xFF);
+	data[1] = (uint8_t) ((velocity_lim >> 8) & 0xFF);
+	data[2] = (uint8_t) ((velocity_lim >> 16) & 0xFF);
+	data[3] = (uint8_t) ((velocity_lim >> 24) & 0xFF);
+	dynamixel2_write(id, address, data, 4);
 }
 
 //==================================================================================
@@ -318,8 +427,8 @@ void dynamixel2_send_packet(uint8_t id, dynamixel2_instruction_t inst,
 	uint32_t packet_length = 10 + params_length;
 	uint8_t packet[packet_length];
 	packet[0] = 0xFF; /* Header 1. */
-	packet[1] = 0xFF; /* Hedaer 2. */
-	packet[2] = 0xFD; /* Hedaer 3. */
+	packet[1] = 0xFF; /* Header 2. */
+	packet[2] = 0xFD; /* Header 3. */
 	packet[3] = 0x00; /* Reserved. */
 
 	packet[4] = id; /* Packet ID. */

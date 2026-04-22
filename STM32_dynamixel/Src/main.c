@@ -30,6 +30,7 @@
 #include "ECAT/soes/esc.h"
 #include "ECAT/soes-esi/utypes.h"
 
+#define TEST	0
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -90,6 +91,12 @@ void cb_get_inputs() {
 	Obj.present_temperature = motor_status1.present_temperature;
 	Obj.baudrate = motor_status1.baudrate;
 	Obj.operating_mode = motor_status1.control_mode_st;
+	Obj.Max_pos_lim = motor_status1.Max_pos_lim;
+	Obj.Min_pos_lim = motor_status1.Min_pos_lim;
+	Obj.Velocity_lim = motor_status1.Velocity_lim;
+	Obj.Current_lim = motor_status1.Current_lim;
+	Obj.Hardware_error_status = motor_status1.Hardware_error_status;
+	Obj.Moving = motor_status1.Moving;
 }
 
 void cb_set_outputs() {
@@ -99,6 +106,9 @@ void cb_set_outputs() {
 	motor_cmd1.LED_state = Obj.LED_STATE;
 	motor_cmd1.target_position = Obj.goal_position;
 	motor_cmd1.target_velocity = Obj.target_velocity;
+	motor_cmd1.target_current = Obj.target_current;
+	motor_cmd1.reboot = Obj.Reboot;
+	motor_cmd1.emergency_stop = Obj.Emergency_stop;
 }
 /* USER CODE END 0 */
 
@@ -189,7 +199,7 @@ int main(void) {
 	ecat_slv_init(&config);
 
 	motor_init(ID_1, &motor_cmd1, &motor_status1);
-
+#if TEST == 0
 	/* USER CODE END 2 */
 	mutex_motor = xSemaphoreCreateMutex();
 	osKernelInitialize();
@@ -199,6 +209,20 @@ int main(void) {
 
 	osKernelStart();
 	/* USER CODE BEGIN WHILE */
+#else
+	uint8_t temp_lim = dynamixel2_getTemplimit(ID_1);
+	int16_t current_lim = dynamixel2_getCurrentLimit(ID_1);
+	int32_t max_position_lim = dynamixel2_getMaxPositionLimit(ID_1);
+	int32_t min_posiiton_lim = dynamixel2_getMinPositionLimit(ID_1);
+	int32_t velocity_lim = dynamixel2_getVelocityLimit(ID_1);
+
+	term_printf("température limite : %u\r\n", temp_lim);
+	term_printf("courrant limite : %u\r\n", current_lim);
+	term_printf("position max limite : %u\r\n", max_position_lim);
+	term_printf("position min limite : %u\r\n", min_posiiton_lim);
+	term_printf("vitesse limite :%u\r\n", velocity_lim);
+
+#endif
 
 }
 /* USER CODE END 3 */

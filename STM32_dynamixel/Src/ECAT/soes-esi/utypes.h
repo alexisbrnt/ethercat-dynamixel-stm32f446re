@@ -21,6 +21,12 @@ typedef struct
    int16_t present_temperature;
    uint8_t baudrate;
    uint8_t operating_mode;
+   int32_t Max_pos_lim;
+   int32_t Min_pos_lim;
+   int32_t Velocity_lim;
+   int16_t Current_lim;
+   uint8_t Hardware_error_status;
+   uint8_t Moving;
 
    /* Outputs */
 
@@ -30,6 +36,9 @@ typedef struct
    uint8_t LED_STATE;
    int32_t goal_position;
    int32_t target_velocity;
+   int16_t target_current;
+   uint8_t Reboot;
+   uint8_t Emergency_stop;
 
 } _Objects;
 

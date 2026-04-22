@@ -66,7 +66,7 @@ void dynamixel2_set_LED(uint8_t id, bool enable);
 void dynamixel2_setOperatingMode(uint8_t id, uint8_t data);
 uint8_t dynamixel2_getOperatingMode(uint8_t id);
 void dynamixel2_set_goal_velocity(uint8_t, int32_t velocity);
-void dynamixel2_setBaudrate(uint8_t id, int32_t baudrate);
+void dynamixel2_setBaudrate(uint8_t id, uint8_t baudrate);
 int16_t dynamixel2_read_present_current(uint8_t id);
 int16_t dynamixel2_read_present_temperature(uint8_t id);
 uint8_t dynamixel2_get_BaudRate(uint8_t id);
@@ -76,5 +76,18 @@ void dynamixel2_receive_callback(uint8_t received_data);
 void dynamixel2_clear_receive_buffer(void);
 
 void dynamixel2_dma_init(void);
+
+uint8_t dynamixel2_getTemplimit(uint8_t id);
+void dynamixel2_setTempLimit(uint8_t id, uint8_t temp_lim);
+int16_t dynamixel2_getCurrentLimit(uint8_t id);
+void dynamixel2_setCurrentLimit(uint8_t id, int16_t current_lim);
+int32_t dynamixel2_getMaxPositionLimit(uint8_t id);
+void dynamixel2_setMaxPositionLimit(uint8_t id, int32_t max_position_lim);
+int32_t dynamixel2_getMinPositionLimit(uint8_t id);
+void dynamixel2_setMinPositionLimit(uint8_t id, int32_t min_position_lim);
+int32_t dynamixel2_getVelocityLimit(uint8_t id);
+void dynamixel2_setVelocityLimit(uint8_t id, int32_t velocity_lim);
+int32_t dynamixel2_read_essentiels(uint8_t id);
+
 
 #endif /* __DYNAMIXEL_2_0_H */
