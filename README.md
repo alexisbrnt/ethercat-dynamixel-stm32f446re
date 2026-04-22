@@ -1,4 +1,4 @@
-# 🔌 EtherCAT Communication for Dynamixel by STM32F446RE
+# EtherCAT Communication for Dynamixel by STM32F446RE
 
 > An embedded **EtherCAT slave node** built around the STM32F446RE, driving a Dynamixel XM430-W350 servomotor in real time.
 
@@ -10,7 +10,7 @@
 
 ---
 
-## 📖 About
+## About
 
 An embedded EtherCAT slave node based on the **STM32F446RE** microcontroller, designed to drive a **Dynamixel XM430-W350** servomotor through the Dynamixel Protocol 2.0. The STM32 interfaces with an EtherCAT master over SPI (via a LAN9252 slave controller) and translates incoming commands into UART/RS-485 frames sent to the motor.
 
@@ -18,7 +18,7 @@ This project is developed as part of an internship at **Heemskerk Innovative Tec
 
 ---
 
-## 🎯 Goal
+## Goal
 
 Design and implement a new real-time communication architecture allowing an EtherCAT master to command a Dynamixel servomotor (position, velocity, etc.) and read back its live telemetry (position, velocity, current, temperature) with deterministic timing.
 
@@ -30,7 +30,7 @@ EtherCAT Master  ──►  LAN9252 (SPI slave)  ──►  STM32F446RE  ──�
 
 ---
 
-## 🧩 Hardware
+## Hardware
 
 | Component | Reference |
 |---|---|
@@ -43,7 +43,7 @@ EtherCAT Master  ──►  LAN9252 (SPI slave)  ──►  STM32F446RE  ──�
 
 ---
 
-## 📌 STM32F446RE Pinout
+## STM32F446RE Pinout
 
 ### Dynamixel communication (UART + RS-485)
 
@@ -64,7 +64,7 @@ EtherCAT Master  ──►  LAN9252 (SPI slave)  ──►  STM32F446RE  ──�
 
 ---
 
-## ⚙️ Configuration
+## Configuration
 
 | Parameter | Value |
 |---|---|
@@ -76,7 +76,7 @@ EtherCAT Master  ──►  LAN9252 (SPI slave)  ──►  STM32F446RE  ──�
 
 ---
 
-## 🚀 Usage
+## Usage
 
 ### 1. Flash the LAN9252 EEPROM (one-time setup)
 
@@ -97,7 +97,7 @@ sudo ./eepromtool <your_network_interface> 1 -wi eeprom.hex
 - The first argument `1` is the EtherCAT slave position on the bus.
 - Replace `<your_network_interface>` (e.g. `eth0`) with the interface connected to the LAN9252.
 
-> 💡 This step is only required **once per LAN9252 board**, or whenever the ESI / PDO mapping is changed.
+This step is only required **once per LAN9252 board**, or whenever the ESI / PDO mapping is changed.
 
 ### 2. Build and flash the STM32 firmware
 
@@ -129,7 +129,7 @@ pip install -r scripts/requirements.txt
 sudo python3 scripts/ec_motor.py --ifname <your_network_interface>
 ```
 
-#### ⚠️ Network interface — must be adapted to your machine
+#### Network interface — must be adapted to your machine
 
 The EtherCAT master binds to a specific network interface (the one physically connected to the EtherCAT slave, typically a USB-to-Ethernet adapter). The interface name depends on your hardware and operating system, so **it must be changed in two places**:
 
@@ -150,7 +150,7 @@ Look for an entry matching the adapter you plugged in (often starting with `enx.
 
 ---
 
-## 📚 Resources & references
+## Resources & references
 
 - [Dynamixel XM430-W350 e-Manual](https://emanual.robotis.com/docs/en/dxl/x/xm430-w350/)
 - [Dynamixel Protocol 2.0](https://emanual.robotis.com/docs/en/dxl/protocol2/)
