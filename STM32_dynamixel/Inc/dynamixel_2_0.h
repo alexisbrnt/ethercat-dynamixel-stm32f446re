@@ -80,6 +80,7 @@ uint8_t dynamixel2_getTemplimit(uint8_t id);
 void dynamixel2_setTempLimit(uint8_t id, uint8_t temp_lim);
 int16_t dynamixel2_getCurrentLimit(uint8_t id);
 void dynamixel2_setCurrentLimit(uint8_t id, int16_t current_lim);
+void dynamixel2_set_goal_current(uint8_t id, int16_t current);
 int32_t dynamixel2_getMaxPositionLimit(uint8_t id);
 void dynamixel2_setMaxPositionLimit(uint8_t id, int32_t max_position_lim);
 int32_t dynamixel2_getMinPositionLimit(uint8_t id);

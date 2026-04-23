@@ -8,6 +8,12 @@
 #include "drv_uart.h"
 
 motor_command_t motor_cmd;
+
+#define Init_MAX_limit 		4095
+#define Init_MIN_limit 		0
+#define With_GRIPPER		0
+
+
 //motor_status_t motor_status;
 
 void motor_init(uint8_t id, motor_command_t *motor_cmd,
@@ -27,14 +33,16 @@ void motor_init(uint8_t id, motor_command_t *motor_cmd,
 	motor_status->state = MOTOR_STATE_INIT;
 
 	if (dynamixel2_ping(id)) {
-		dynamixel2_setMaxPositionLimit(id, 4095);
-		dynamixel2_setMinPositionLimit(id, 0);
+		dynamixel2_setMaxPositionLimit(id, Init_MAX_limit);
+		dynamixel2_setMinPositionLimit(id, Init_MIN_limit);
 
+
+#if With_GRIPPER
 		dynamixel2_set_torque_enable(id, 0);
 		dynamixel2_setOperatingMode(id, VELOCITY_MODE);
 		dynamixel2_set_torque_enable(id, 1);
 		dynamixel2_set_goal_velocity(id, 0);
-		//dynamixel2_set_goal_position(id, motor_cmd->target_position);
+
 		uint8_t cnt = 0;
 		uint32_t t0 = HAL_GetTick();
 		do {
@@ -46,7 +54,7 @@ void motor_init(uint8_t id, motor_command_t *motor_cmd,
 		dynamixel2_set_goal_velocity(id, 0);
 		HAL_Delay(500);
 
-		motor_status->Max_pos_lim = (((dynamixel2_read_present_position(id) % 4096) + 4096) % 4096)-70;
+		motor_status->Max_pos_lim = (((dynamixel2_read_present_position(id) % 4096) + 4096) % 4096)-100;
 		dynamixel2_set_torque_enable(id, 0);           // ← EEPROM write
 		dynamixel2_setMaxPositionLimit(id, motor_status->Max_pos_lim);
 		dynamixel2_set_torque_enable(id, 1);
@@ -63,8 +71,8 @@ void motor_init(uint8_t id, motor_command_t *motor_cmd,
 		dynamixel2_set_goal_velocity(id, 0);
 		HAL_Delay(500);
 
-		motor_status->Min_pos_lim = (((dynamixel2_read_present_position(id) % 4096) + 4096) % 4096)+70;
-		dynamixel2_set_torque_enable(id, 0);           // ← EEPROM write
+		motor_status->Min_pos_lim = (((dynamixel2_read_present_position(id) % 4096) + 4096) % 4096)+100;
+		dynamixel2_set_torque_enable(id, 0);
 		dynamixel2_setMinPositionLimit(id, motor_status->Min_pos_lim);
 		dynamixel2_setOperatingMode(id, motor_cmd->control_mode);
 		dynamixel2_set_torque_enable(id, 1);
@@ -73,6 +81,14 @@ void motor_init(uint8_t id, motor_command_t *motor_cmd,
 		HAL_Delay(500);
 		dynamixel2_set_torque_enable(id, motor_cmd->torque_enabled);
 
+#else
+		motor_status->Max_pos_lim = Init_MAX_limit;
+		motor_status->Min_pos_lim = Init_MIN_limit;
+		dynamixel2_set_torque_enable(id, 0);
+		dynamixel2_setOperatingMode(id, motor_cmd->control_mode);
+		dynamixel2_set_torque_enable(id, 1);
+		dynamixel2_set_goal_position(id, motor_cmd->target_position);
+#endif
 
 
 		motor_status->Current_lim = dynamixel2_getCurrentLimit(id);
@@ -119,10 +135,16 @@ void motor_command(motor_command_t *motor_cmd, motor_status_t *motor_status) {
 			dynamixel2_set_goal_position(motor_cmd->id,
 					motor_cmd->target_position);
 
-		} else if (motor_cmd->control_mode == VELOCITY_MODE) {
+		}
+#if With_GRIPPER == 0
+		else if (motor_cmd->control_mode == VELOCITY_MODE) {
 			dynamixel2_set_goal_velocity(motor_cmd->id,
 					motor_cmd->target_velocity);
 		}
+		else if (motor_cmd->control_mode == CURRENT_MODE){
+			dynamixel2_set_goal_current(motor_cmd->id,motor_cmd->target_current);
+		}
+#endif
 
 	}
 }
@@ -147,16 +169,22 @@ void motor_status(motor_status_t *motor_status, motor_command_t *motor_cmd) {
 		} else {
 			motor_status->state = MOTOR_STATE_RUNNING;
 		}
-		motor_status->Moving = dynamixel2_ismoving(motor_status->id);
 
-		motor_status->present_position = dynamixel2_read_present_position(
-				motor_status->id);
+		uint16_t address = 122;
+		uint16_t size = 14;
+		uint8_t return_data[size];
+		uint16_t return_data_length;
+		dynamixel2_read(motor_status->id, address, size, return_data, &return_data_length);
 
-		motor_status->present_velocity = dynamixel2_read_present_velocity(
-				motor_status->id);
+		motor_status->Moving = return_data[0];
+		motor_status->present_current = return_data[4] + ((return_data[5]<<8) & 0xFF00);
+		motor_status->present_velocity = return_data[6] + ((return_data[7] << 8) & 0xFF00)
+						+ ((return_data[8] << 16) & 0xFF0000)
+						+ ((return_data[9] << 24) & 0xFF000000);
+		motor_status->present_position = return_data[10] + ((return_data[11] << 8) & 0xFF00)
+						+ ((return_data[12] << 16) & 0xFF0000)
+						+ ((return_data[13] << 24) & 0xFF000000);
 
-		motor_status->present_current = dynamixel2_read_present_current(
-				motor_status->id);
 
 		motor_status->present_temperature = dynamixel2_read_present_temperature(
 				motor_status->id);

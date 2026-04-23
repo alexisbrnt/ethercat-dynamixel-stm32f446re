@@ -10,6 +10,7 @@
 #include "task.h"
 #include "drv_dma.h"
 
+
 #define GET_LOW_ORDER_BYTE(bytes) ((uint8_t)(((uint16_t)(bytes)) & 0xFF))
 #define GET_HIGH_ORDER_BYTE(bytes) ((uint8_t)((((uint16_t)(bytes)) >> 8) & 0xFF))
 
@@ -246,6 +247,29 @@ int32_t dynamixel2_read_present_velocity(uint8_t id) {
 			+ ((return_data[3] << 24) & 0xFF000000);
 	return velocity;
 }
+
+/*void dynamixel2_read_DATA(motor_status_t *motor_status){
+	uint16_t address = 122;
+	uint16_t size = 24;
+	uint8_t return_data[size];
+	uint16_t return_data_length;
+	dynamixel2_read(id, address, size, return_data, &return_data_length);
+
+	motor_status->Moving = return_data[0];
+	motor_status->present_current = return_data[4] + ((return_data[5]<<8) & 0xFF00);
+	motor_status->present_velocity = return_data[6] + ((return_data[7] << 8) & 0xFF00)
+					+ ((return_data[8] << 16) & 0xFF0000)
+					+ ((return_data[9] << 24) & 0xFF000000);
+	motor_status->present_position = return_data[10] + ((return_data[11] << 8) & 0xFF00)
+					+ ((return_data[12] << 16) & 0xFF0000)
+					+ ((return_data[13] << 24) & 0xFF000000);
+	motor_status->present_temperature = return_data[24];
+
+}*/
+
+
+
+
 //==================================================================================
 // CURRENT
 //==================================================================================
@@ -290,6 +314,10 @@ int16_t dynamixel2_read_present_temperature(uint8_t id) {
 	int16_t temperature = return_data[0];
 	return temperature;
 }
+
+
+
+
 
 //==================================================================================
 // BAUDRATE
