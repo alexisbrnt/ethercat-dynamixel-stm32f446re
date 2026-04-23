@@ -2,11 +2,6 @@
 
 > An embedded **EtherCAT slave node** built around the STM32F446RE, driving a Dynamixel XM430-W350 servomotor in real time.
 
-![STM32](https://img.shields.io/badge/STM32-F446RE-03234B?logo=stmicroelectronics&logoColor=white)
-![EtherCAT](https://img.shields.io/badge/EtherCAT-slave-E30613)
-![LAN9252](https://img.shields.io/badge/Microchip-LAN9252-EE3524)
-![Dynamixel](https://img.shields.io/badge/Dynamixel-XM430--W350-E60022)
-![Protocol](https://img.shields.io/badge/Protocol-2.0-blue)
 
 ---
 
