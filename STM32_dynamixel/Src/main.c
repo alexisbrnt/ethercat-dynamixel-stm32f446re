@@ -83,20 +83,24 @@ void SystemClock_Config(void);
 void MX_DMA_Init(void);
 
 void cb_get_inputs() {
-	Obj.ID_TX = motor_status1.id;
-	Obj.state = (uint8_t) motor_status1.state;
-	Obj.present_position = motor_status1.present_position;
-	Obj.present_velocity = motor_status1.present_velocity;
-	Obj.present_current = motor_status1.present_current;
-	Obj.present_temperature = motor_status1.present_temperature;
-	Obj.baudrate = motor_status1.baudrate;
-	Obj.operating_mode = motor_status1.control_mode_st;
-	Obj.Max_pos_lim = motor_status1.Max_pos_lim;
-	Obj.Min_pos_lim = motor_status1.Min_pos_lim;
-	Obj.Velocity_lim = motor_status1.Velocity_lim;
-	Obj.Current_lim = motor_status1.Current_lim;
-	Obj.Hardware_error_status = motor_status1.Hardware_error_status;
-	Obj.Moving = motor_status1.Moving;
+	if (xSemaphoreTake(mutex_motor, pdMS_TO_TICKS(1)) == pdTRUE) {
+		Obj.ID_TX = motor_status1.id;
+		Obj.state = (uint8_t) motor_status1.state;
+		Obj.present_position = motor_status1.present_position;
+		Obj.present_velocity = motor_status1.present_velocity;
+		Obj.present_current = motor_status1.present_current;
+		Obj.present_temperature = motor_status1.present_temperature;
+		Obj.baudrate = motor_status1.baudrate;
+		Obj.operating_mode = motor_status1.control_mode_st;
+		Obj.Max_pos_lim = motor_status1.Max_pos_lim;
+		Obj.Min_pos_lim = motor_status1.Min_pos_lim;
+		Obj.Velocity_lim = motor_status1.Velocity_lim;
+		Obj.Current_lim = motor_status1.Current_lim;
+		Obj.Hardware_error_status = motor_status1.Hardware_error_status;
+		Obj.Moving = motor_status1.Moving;
+		Obj.torque_status = motor_status1.torque_status;
+		xSemaphoreGive(mutex_motor);
+	}
 }
 
 void cb_set_outputs() {
@@ -210,17 +214,18 @@ int main(void) {
 	osKernelStart();
 	/* USER CODE BEGIN WHILE */
 #else
-	uint8_t temp_lim = dynamixel2_getTemplimit(ID_1);
-	int16_t current_lim = dynamixel2_getCurrentLimit(ID_1);
-	int32_t max_position_lim = dynamixel2_getMaxPositionLimit(ID_1);
-	int32_t min_posiiton_lim = dynamixel2_getMinPositionLimit(ID_1);
-	int32_t velocity_lim = dynamixel2_getVelocityLimit(ID_1);
 
-	term_printf("température limite : %u\r\n", temp_lim);
-	term_printf("courrant limite : %u\r\n", current_lim);
-	term_printf("position max limite : %u\r\n", max_position_lim);
-	term_printf("position min limite : %u\r\n", min_posiiton_lim);
-	term_printf("vitesse limite :%u\r\n", velocity_lim);
+	while (1) {
+		GPIO_PinState state_close = HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_1);
+		GPIO_PinState state_open = HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_0);
+
+		if (state_open == GPIO_PIN_RESET) {
+			term_printf("open\r\n");
+		} else if (state_close == GPIO_PIN_RESET){
+			term_printf("close\r\n");
+		}
+
+	}
 
 #endif
 
@@ -264,8 +269,6 @@ void SystemClock_Config(void) {
 		Error_Handler();
 	}
 }
-
-
 
 /* USER CODE BEGIN SPI1_Init 2 */
 

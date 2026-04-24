@@ -27,6 +27,7 @@ class EthercatThread(QtCore.QThread):
             "target_current": 0,
             "reboot": 0,
             "emergency_stop": 0,
+            "torque_status": 0,
         }
 
         self.master = None
@@ -104,7 +105,7 @@ class EthercatThread(QtCore.QThread):
     @staticmethod
     def _unpack_inputs(buf: bytes) -> dict:
 
-        if len(buf) < 32:
+        if len(buf) < 33:
             raise ValueError(f"Input buffer too short: {len(buf)}")
         return {
             "id": buf[0],
@@ -129,6 +130,7 @@ class EthercatThread(QtCore.QThread):
             "current_lim": int.from_bytes(buf[28:30], byteorder="little", signed=True),
             "hardware_error_status": buf[30],
             "moving": buf[31],
+            "torque_status": buf[32],
         }
 
     # ---------- main loop ----------

@@ -29,6 +29,8 @@ class MainWindow(QMainWindow):
         3: "RUNNING",
         4: "ERROR",
         5: "OFF",
+        6: "EMERGENCY_STOP",
+        7: "GRIPPER_MODE",
     }
 
     OPERATING_MODE_LABELS = {
@@ -391,12 +393,17 @@ class MainWindow(QMainWindow):
 
             # Disable controls on error
             in_error = raw_state == 4
+            in_gripper = raw_state == 7
             mode = self.control_mode_combo.currentData()
             self.target_position_slider.setEnabled(not in_error and mode == 3)
-            self.target_velocity_slider.setEnabled(not in_error and mode == 1)
-            self.target_current_slider.setEnabled(not in_error and mode == 0)
-            self.reset_current_button.setEnabled(not in_error)
-            self.reset_velocity_button.setEnabled(not in_error)
+            self.target_velocity_slider.setEnabled(
+                not in_error and mode == 1 and not in_gripper
+            )
+            self.target_current_slider.setEnabled(
+                not in_error and mode == 0 and not in_gripper
+            )
+            self.reset_current_button.setEnabled(not in_error and not in_gripper)
+            self.reset_velocity_button.setEnabled(not in_error and not in_gripper)
             self.control_mode_combo.setEnabled(not in_error)
             self.torque_switch.setEnabled(not in_error)
             self.led_switch.setEnabled(not in_error)

@@ -628,6 +628,30 @@
                 </SubItem>
               </DataType>
               <DataType>
+                <Name>DT1A0E</Name>
+                <BitSize>48</BitSize>
+                <SubItem>
+                  <SubIdx>0</SubIdx>
+                  <Name>Max SubIndex</Name>
+                  <Type>USINT</Type>
+                  <BitSize>8</BitSize>
+                  <BitOffs>0</BitOffs>
+                  <Flags>
+                    <Access>ro</Access>
+                  </Flags>
+                </SubItem>
+                <SubItem>
+                  <SubIdx>1</SubIdx>
+                  <Name>torque_status</Name>
+                  <Type>UDINT</Type>
+                  <BitSize>32</BitSize>
+                  <BitOffs>16</BitOffs>
+                  <Flags>
+                    <Access>ro</Access>
+                  </Flags>
+                </SubItem>
+              </DataType>
+              <DataType>
                 <Name>DT1C00ARR</Name>
                 <BaseType>USINT</BaseType>
                 <BitSize>32</BitSize>
@@ -694,15 +718,15 @@
               <DataType>
                 <Name>DT1C13ARR</Name>
                 <BaseType>UINT</BaseType>
-                <BitSize>224</BitSize>
+                <BitSize>240</BitSize>
                 <ArrayInfo>
                   <LBound>1</LBound>
-                  <Elements>14</Elements>
+                  <Elements>15</Elements>
                 </ArrayInfo>
               </DataType>
               <DataType>
                 <Name>DT1C13</Name>
-                <BitSize>240</BitSize>
+                <BitSize>256</BitSize>
                 <SubItem>
                   <SubIdx>0</SubIdx>
                   <Name>Max SubIndex</Name>
@@ -716,7 +740,7 @@
                 <SubItem>
                   <Name>Elements</Name>
                   <Type>DT1C13ARR</Type>
-                  <BitSize>224</BitSize>
+                  <BitSize>240</BitSize>
                   <BitOffs>16</BitOffs>
                   <Flags>
                     <Access>ro</Access>
@@ -1374,6 +1398,29 @@
                 </Flags>
               </Object>
               <Object>
+                <Index>#x1A0E</Index>
+                <Name>torque_status</Name>
+                <Type>DT1A0E</Type>
+                <BitSize>48</BitSize>
+                <Info>
+                  <SubItem>
+                    <Name>Max SubIndex</Name>
+                    <Info>
+                      <DefaultValue>1</DefaultValue>
+                    </Info>
+                  </SubItem>
+                  <SubItem>
+                    <Name>torque_status</Name>
+                    <Info>
+                      <DefaultValue>#x600E0008</DefaultValue>
+                    </Info>
+                  </SubItem>
+                </Info>
+                <Flags>
+                  <Access>ro</Access>
+                </Flags>
+              </Object>
+              <Object>
                 <Index>#x1C00</Index>
                 <Name>Sync Manager Communication Type</Name>
                 <Type>DT1C00</Type>
@@ -1489,12 +1536,12 @@
                 <Index>#x1C13</Index>
                 <Name>Sync Manager 3 PDO Assignment</Name>
                 <Type>DT1C13</Type>
-                <BitSize>240</BitSize>
+                <BitSize>256</BitSize>
                 <Info>
                   <SubItem>
                     <Name>Max SubIndex</Name>
                     <Info>
-                      <DefaultValue>14</DefaultValue>
+                      <DefaultValue>15</DefaultValue>
                     </Info>
                   </SubItem>
                   <SubItem>
@@ -1579,6 +1626,12 @@
                     <Name>PDO Mapping</Name>
                     <Info>
                       <DefaultValue>#x1A0D</DefaultValue>
+                    </Info>
+                  </SubItem>
+                  <SubItem>
+                    <Name>PDO Mapping</Name>
+                    <Info>
+                      <DefaultValue>#x1A0E</DefaultValue>
                     </Info>
                   </SubItem>
                 </Info>
@@ -1758,6 +1811,19 @@
               <Object>
                 <Index>#x600D</Index>
                 <Name>Moving</Name>
+                <Type>USINT</Type>
+                <BitSize>8</BitSize>
+                <Info>
+                  <DefaultValue>0</DefaultValue>
+                </Info>
+                <Flags>
+                  <Access>ro</Access>
+                  <PdoMapping>T</PdoMapping>
+                </Flags>
+              </Object>
+              <Object>
+                <Index>#x600E</Index>
+                <Name>torque_status</Name>
                 <Type>USINT</Type>
                 <BitSize>8</BitSize>
                 <Info>
@@ -2145,6 +2211,17 @@
             <SubIndex>#x0</SubIndex>
             <BitLen>8</BitLen>
             <Name>Moving</Name>
+            <DataType>USINT</DataType>
+          </Entry>
+        </TxPdo>
+        <TxPdo Fixed="true" Mandatory="true" Sm="3">
+          <Index>#x1A0E</Index>
+          <Name>torque_status</Name>
+          <Entry>
+            <Index>#x600E</Index>
+            <SubIndex>#x0</SubIndex>
+            <BitLen>8</BitLen>
+            <Name>torque_status</Name>
             <DataType>USINT</DataType>
           </Entry>
         </TxPdo>

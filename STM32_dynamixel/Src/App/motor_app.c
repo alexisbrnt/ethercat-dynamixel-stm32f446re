@@ -11,7 +11,7 @@ motor_command_t motor_cmd;
 
 #define Init_MAX_limit 		4095
 #define Init_MIN_limit 		0
-#define With_GRIPPER		0
+#define With_GRIPPER		1
 
 
 //motor_status_t motor_status;
@@ -33,8 +33,7 @@ void motor_init(uint8_t id, motor_command_t *motor_cmd,
 	motor_status->state = MOTOR_STATE_INIT;
 
 	if (dynamixel2_ping(id)) {
-		dynamixel2_setMaxPositionLimit(id, Init_MAX_limit);
-		dynamixel2_setMinPositionLimit(id, Init_MIN_limit);
+
 
 
 #if With_GRIPPER
@@ -43,35 +42,43 @@ void motor_init(uint8_t id, motor_command_t *motor_cmd,
 		dynamixel2_set_torque_enable(id, 1);
 		dynamixel2_set_goal_velocity(id, 0);
 
-		uint8_t cnt = 0;
+		/*uint8_t cnt = 0;
 		uint32_t t0 = HAL_GetTick();
 		do {
 			dynamixel2_set_goal_velocity(id, 50);
 			HAL_Delay(50);
 			cnt = (abs(dynamixel2_read_present_current(id)) >= 5) ? cnt+1 : 0;
-			if (HAL_GetTick() - t0 > 10000) { /* timeout handler */ break; }
-		} while(cnt < 2);
+			if (HAL_GetTick() - t0 > 10000) {  break; }
+		} while(cnt < 2);*/
+		do {
+			dynamixel2_set_goal_velocity(id, 50);
+		}while(HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_0)!= GPIO_PIN_RESET);
+
 		dynamixel2_set_goal_velocity(id, 0);
 		HAL_Delay(500);
 
-		motor_status->Max_pos_lim = (((dynamixel2_read_present_position(id) % 4096) + 4096) % 4096)-100;
-		dynamixel2_set_torque_enable(id, 0);           // ← EEPROM write
+		motor_status->Max_pos_lim = (((dynamixel2_read_present_position(id) % 4096) + 4096) % 4096);
+		dynamixel2_set_torque_enable(id, 0);
 		dynamixel2_setMaxPositionLimit(id, motor_status->Max_pos_lim);
 		dynamixel2_set_torque_enable(id, 1);
-		HAL_Delay(2000);
+		HAL_Delay(100);
 
 		// Recherche limite MIN
-		cnt = 0; t0 = HAL_GetTick();
+		/*cnt = 0; t0 = HAL_GetTick();
 		do {
 			dynamixel2_set_goal_velocity(id, -50);     // ← underscore corrigé
 			HAL_Delay(50);
 			cnt = (abs(dynamixel2_read_present_current(id)) >= 7) ? cnt+1 : 0;
-			if (HAL_GetTick() - t0 > 10000) { /* timeout handler */ break; }
-		} while(cnt < 3);
-		dynamixel2_set_goal_velocity(id, 0);
-		HAL_Delay(500);
+			if (HAL_GetTick() - t0 > 10000) {  break; }
+		} while(cnt < 3);*/
 
-		motor_status->Min_pos_lim = (((dynamixel2_read_present_position(id) % 4096) + 4096) % 4096)+100;
+		do {
+			dynamixel2_set_goal_velocity(id, -50);
+		}while (HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_1)!= GPIO_PIN_RESET);
+		dynamixel2_set_goal_velocity(id, 0);
+		HAL_Delay(100);
+
+		motor_status->Min_pos_lim = (((dynamixel2_read_present_position(id) % 4096) + 4096) % 4096);
 		dynamixel2_set_torque_enable(id, 0);
 		dynamixel2_setMinPositionLimit(id, motor_status->Min_pos_lim);
 		dynamixel2_setOperatingMode(id, motor_cmd->control_mode);
@@ -80,14 +87,19 @@ void motor_init(uint8_t id, motor_command_t *motor_cmd,
 		dynamixel2_set_goal_position(id, moyenne);
 		HAL_Delay(500);
 		dynamixel2_set_torque_enable(id, motor_cmd->torque_enabled);
+		motor_status->state = MOTOR_GRIPPER_STATE;
 
 #else
 		motor_status->Max_pos_lim = Init_MAX_limit;
 		motor_status->Min_pos_lim = Init_MIN_limit;
+
 		dynamixel2_set_torque_enable(id, 0);
+		dynamixel2_setMaxPositionLimit(id, Init_MAX_limit);
+		dynamixel2_setMinPositionLimit(id, Init_MIN_limit);
 		dynamixel2_setOperatingMode(id, motor_cmd->control_mode);
 		dynamixel2_set_torque_enable(id, 1);
 		dynamixel2_set_goal_position(id, motor_cmd->target_position);
+		motor_status->state = MOTOR_STATE_READY;
 #endif
 
 
@@ -97,7 +109,7 @@ void motor_init(uint8_t id, motor_command_t *motor_cmd,
 		motor_status->baudrate = dynamixel2_get_BaudRate(id);
 		motor_cmd->torque_enabled = true;
 
-		motor_status->state = MOTOR_STATE_READY;
+
 		//dynamixel2_set_LED(id, motor_cmd->LED_state);
 		term_printf("Dynamixel XM430-W350 OK!\r\n");
 		term_printf("\n\r");
@@ -118,7 +130,7 @@ void motor_command(motor_command_t *motor_cmd, motor_status_t *motor_status) {
 	dynamixel2_set_LED(motor_cmd->id, motor_cmd->LED_state);
 
 	if (motor_status->state == MOTOR_STATE_READY
-			|| motor_status->state == MOTOR_STATE_RUNNING) {
+			|| motor_status->state == MOTOR_STATE_RUNNING || motor_status->state == MOTOR_GRIPPER_STATE) {
 
 		if (motor_cmd->control_mode != motor_status->control_mode_st) {
 			dynamixel2_set_torque_enable(motor_cmd->id, 0);
@@ -164,7 +176,12 @@ void motor_status(motor_status_t *motor_status, motor_command_t *motor_cmd) {
 		if (motor_cmd->torque_enabled == 0) {
 			motor_status->state = MOTOR_STATE_OFF;
 
-		} else if (motor_status->present_velocity < 10) {
+		}
+		else if (motor_status->Max_pos_lim <4095 && motor_status->Min_pos_lim>0){
+			motor_status->state = MOTOR_GRIPPER_STATE;
+
+		}
+				else if (motor_status->present_velocity < 10) {
 			motor_status->state = MOTOR_STATE_READY;
 		} else {
 			motor_status->state = MOTOR_STATE_RUNNING;

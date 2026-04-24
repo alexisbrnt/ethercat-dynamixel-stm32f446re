@@ -27,6 +27,7 @@ typedef struct
    int16_t Current_lim;
    uint8_t Hardware_error_status;
    uint8_t Moving;
+   uint8_t torque_status;
 
    /* Outputs */
 

@@ -82,6 +82,9 @@ static const char acName1A0C_01[] = "Hardware_error_status";
 static const char acName1A0D[] = "Moving";
 static const char acName1A0D_00[] = "Max SubIndex";
 static const char acName1A0D_01[] = "Moving";
+static const char acName1A0E[] = "torque_status";
+static const char acName1A0E_00[] = "Max SubIndex";
+static const char acName1A0E_01[] = "torque_status";
 static const char acName1C00[] = "Sync Manager Communication Type";
 static const char acName1C00_00[] = "Max SubIndex";
 static const char acName1C00_01[] = "Communications Type SM0";
@@ -115,6 +118,7 @@ static const char acName1C13_11[] = "PDO Mapping";
 static const char acName1C13_12[] = "PDO Mapping";
 static const char acName1C13_13[] = "PDO Mapping";
 static const char acName1C13_14[] = "PDO Mapping";
+static const char acName1C13_15[] = "PDO Mapping";
 static const char acName6000[] = "ID_TX";
 static const char acName6001[] = "state";
 static const char acName6002[] = "present_position";
@@ -129,6 +133,7 @@ static const char acName600A[] = "Velocity_lim";
 static const char acName600B[] = "Current_lim";
 static const char acName600C[] = "Hardware_error_status";
 static const char acName600D[] = "Moving";
+static const char acName600E[] = "torque_status";
 static const char acName7000[] = "ID_RX";
 static const char acName7001[] = "control_mode";
 static const char acName7002[] = "torque_enabled";
@@ -278,6 +283,11 @@ const _objd SDO1A0D[] =
   {0x00, DTYPE_UNSIGNED8, 8, ATYPE_RO, acName1A0D_00, 1, NULL},
   {0x01, DTYPE_UNSIGNED32, 32, ATYPE_RO, acName1A0D_01, 0x600D0008, NULL},
 };
+const _objd SDO1A0E[] =
+{
+  {0x00, DTYPE_UNSIGNED8, 8, ATYPE_RO, acName1A0E_00, 1, NULL},
+  {0x01, DTYPE_UNSIGNED32, 32, ATYPE_RO, acName1A0E_01, 0x600E0008, NULL},
+};
 const _objd SDO1C00[] =
 {
   {0x00, DTYPE_UNSIGNED8, 8, ATYPE_RO, acName1C00_00, 4, NULL},
@@ -301,7 +311,7 @@ const _objd SDO1C12[] =
 };
 const _objd SDO1C13[] =
 {
-  {0x00, DTYPE_UNSIGNED8, 8, ATYPE_RO, acName1C13_00, 14, NULL},
+  {0x00, DTYPE_UNSIGNED8, 8, ATYPE_RO, acName1C13_00, 15, NULL},
   {0x01, DTYPE_UNSIGNED16, 16, ATYPE_RO, acName1C13_01, 0x1A00, NULL},
   {0x02, DTYPE_UNSIGNED16, 16, ATYPE_RO, acName1C13_02, 0x1A01, NULL},
   {0x03, DTYPE_UNSIGNED16, 16, ATYPE_RO, acName1C13_03, 0x1A02, NULL},
@@ -316,6 +326,7 @@ const _objd SDO1C13[] =
   {0x0C, DTYPE_UNSIGNED16, 16, ATYPE_RO, acName1C13_12, 0x1A0B, NULL},
   {0x0D, DTYPE_UNSIGNED16, 16, ATYPE_RO, acName1C13_13, 0x1A0C, NULL},
   {0x0E, DTYPE_UNSIGNED16, 16, ATYPE_RO, acName1C13_14, 0x1A0D, NULL},
+  {0x0F, DTYPE_UNSIGNED16, 16, ATYPE_RO, acName1C13_15, 0x1A0E, NULL},
 };
 const _objd SDO6000[] =
 {
@@ -372,6 +383,10 @@ const _objd SDO600C[] =
 const _objd SDO600D[] =
 {
   {0x0, DTYPE_UNSIGNED8, 8, ATYPE_RO | ATYPE_TXPDO, acName600D, 0, &Obj.Moving},
+};
+const _objd SDO600E[] =
+{
+  {0x0, DTYPE_UNSIGNED8, 8, ATYPE_RO | ATYPE_TXPDO, acName600E, 0, &Obj.torque_status},
 };
 const _objd SDO7000[] =
 {
@@ -440,9 +455,10 @@ const _objectlist SDOobjects[] =
   {0x1A0B, OTYPE_RECORD, 1, 0, acName1A0B, SDO1A0B},
   {0x1A0C, OTYPE_RECORD, 1, 0, acName1A0C, SDO1A0C},
   {0x1A0D, OTYPE_RECORD, 1, 0, acName1A0D, SDO1A0D},
+  {0x1A0E, OTYPE_RECORD, 1, 0, acName1A0E, SDO1A0E},
   {0x1C00, OTYPE_ARRAY, 4, 0, acName1C00, SDO1C00},
   {0x1C12, OTYPE_ARRAY, 9, 0, acName1C12, SDO1C12},
-  {0x1C13, OTYPE_ARRAY, 14, 0, acName1C13, SDO1C13},
+  {0x1C13, OTYPE_ARRAY, 15, 0, acName1C13, SDO1C13},
   {0x6000, OTYPE_VAR, 0, 0, acName6000, SDO6000},
   {0x6001, OTYPE_VAR, 0, 0, acName6001, SDO6001},
   {0x6002, OTYPE_VAR, 0, 0, acName6002, SDO6002},
@@ -457,6 +473,7 @@ const _objectlist SDOobjects[] =
   {0x600B, OTYPE_VAR, 0, 0, acName600B, SDO600B},
   {0x600C, OTYPE_VAR, 0, 0, acName600C, SDO600C},
   {0x600D, OTYPE_VAR, 0, 0, acName600D, SDO600D},
+  {0x600E, OTYPE_VAR, 0, 0, acName600E, SDO600E},
   {0x7000, OTYPE_VAR, 0, 0, acName7000, SDO7000},
   {0x7001, OTYPE_VAR, 0, 0, acName7001, SDO7001},
   {0x7002, OTYPE_VAR, 0, 0, acName7002, SDO7002},

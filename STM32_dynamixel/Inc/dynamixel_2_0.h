@@ -61,6 +61,7 @@ bool dynamixel2_read(uint8_t id, uint16_t address, uint16_t data_length,
 bool dynamixel2_ping(uint8_t id) ;
 void dynamixel2_reset(uint8_t id);
 void dynamixel2_set_torque_enable(uint8_t id, uint8_t enable);
+uint8_t dynamixel2_get_torque_status(uint8_t id);
 void dynamixel2_set_LED(uint8_t id, uint8_t enable);
 void dynamixel2_change_id(int id, uint8_t val);
 void dynamixel2_setOperatingMode(uint8_t id, uint8_t operating_mode);

@@ -19,6 +19,7 @@ typedef enum
 	MOTOR_STATE_ERROR,
 	MOTOR_STATE_OFF,
 	MOTOR_EMERGENCY_STOP,
+	MOTOR_GRIPPER_STATE,
 } motor_state_t;
 
 typedef struct{
@@ -48,6 +49,7 @@ typedef struct{
 	int16_t Current_lim;
 	uint8_t Hardware_error_status;
 	uint8_t Moving;
+	uint8_t torque_status;
 
 } motor_status_t;
 

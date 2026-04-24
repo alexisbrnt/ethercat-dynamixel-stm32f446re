@@ -150,6 +150,16 @@ void dynamixel2_set_torque_enable(uint8_t id, uint8_t enable) {
 	uint8_t size = 1;
 	dynamixel2_write(id, address, &enable, size);
 }
+
+uint8_t dynamixel2_get_torque_status(uint8_t id){
+	uint16_t address = 64;
+	uint8_t size = 1;
+	uint8_t return_data[size];
+	uint16_t return_data_length;
+	dynamixel2_read(id, address, size, return_data, &return_data_length);
+	uint8_t torque = return_data[0];
+	return torque;
+}
 //==================================================================================
 // LED
 //==================================================================================
