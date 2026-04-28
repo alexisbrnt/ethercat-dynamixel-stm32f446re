@@ -20,6 +20,7 @@ typedef enum
 	MOTOR_STATE_OFF,
 	MOTOR_SW_EMERGENCY_STOP,
 	MOTOR_GRIPPER_STATE,
+	MOTOR_HW_EMERGENCY_STOP,
 } motor_state_t;
 
 typedef struct{

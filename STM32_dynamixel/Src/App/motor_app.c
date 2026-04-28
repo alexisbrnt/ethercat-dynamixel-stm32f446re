@@ -11,7 +11,7 @@ motor_command_t motor_cmd;
 
 #define Init_MAX_limit 		4095
 #define Init_MIN_limit 		0
-#define With_GRIPPER		0
+#define With_GRIPPER		1
 
 //motor_status_t motor_status;
 
@@ -55,7 +55,7 @@ void motor_init(uint8_t id, motor_command_t *motor_cmd,
 		HAL_Delay(500);
 
 		motor_status->Max_pos_lim = (((dynamixel2_read_present_position(id)
-				% 4096) + 4096) % 4096);
+				% 4096) + 4096) % 4096)-20;
 		dynamixel2_set_torque_enable(id, 0);
 		dynamixel2_setMaxPositionLimit(id, motor_status->Max_pos_lim);
 		dynamixel2_set_torque_enable(id, 1);
@@ -77,7 +77,7 @@ void motor_init(uint8_t id, motor_command_t *motor_cmd,
 		HAL_Delay(100);
 
 		motor_status->Min_pos_lim = (((dynamixel2_read_present_position(id)
-				% 4096) + 4096) % 4096);
+				% 4096) + 4096) % 4096)+20;
 		dynamixel2_set_torque_enable(id, 0);
 		dynamixel2_setMinPositionLimit(id, motor_status->Min_pos_lim);
 		dynamixel2_setOperatingMode(id, motor_cmd->control_mode);
@@ -119,6 +119,7 @@ void motor_init(uint8_t id, motor_command_t *motor_cmd,
 }
 
 void motor_command(motor_command_t *motor_cmd, motor_status_t *motor_status) {
+
 	if (motor_cmd == NULL || motor_status == NULL) {
 		return;
 	}
@@ -181,7 +182,11 @@ void motor_status(motor_status_t *motor_status, motor_command_t *motor_cmd) {
 		motor_status->present_temperature = 0;
 		motor_status->control_mode_st = 0;
 
-	} else {
+	}
+	else if (motor_status->present_temperature > 70 || motor_status->Hardware_error_status !=0){
+		motor_status->state = MOTOR_HW_EMERGENCY_STOP;
+	}
+	else {
 		if (motor_cmd->torque_enabled == 0) {
 			motor_status->state = MOTOR_STATE_OFF;
 

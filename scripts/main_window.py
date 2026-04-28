@@ -56,7 +56,6 @@ class MainWindow(QMainWindow):
 
         self._emergency_active = False
 
-        # EtherCAT thread (replaces ROS2)
         self.ec_thread = EthercatThread(ifname)
         self.ec_thread.status_received.connect(self.update_status)
         self.ec_thread.error_occurred.connect(self.on_ec_error)

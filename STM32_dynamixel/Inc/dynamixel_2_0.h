@@ -58,6 +58,7 @@ void dynamixel2_write(uint8_t id, uint16_t address, uint8_t *data,
 		uint16_t data_length);
 bool dynamixel2_read(uint8_t id, uint16_t address, uint16_t data_length,
 		uint8_t *return_data, uint16_t *return_data_length);
+void dynamixel2_reboot(uint8_t id);
 bool dynamixel2_ping(uint8_t id) ;
 void dynamixel2_reset(uint8_t id);
 void dynamixel2_set_torque_enable(uint8_t id, uint8_t enable);

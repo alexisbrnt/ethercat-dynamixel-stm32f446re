@@ -10,7 +10,6 @@
 #include "task.h"
 #include "drv_dma.h"
 
-
 #define GET_LOW_ORDER_BYTE(bytes) ((uint8_t)(((uint16_t)(bytes)) & 0xFF))
 #define GET_HIGH_ORDER_BYTE(bytes) ((uint8_t)((((uint16_t)(bytes)) >> 8) & 0xFF))
 
@@ -143,6 +142,25 @@ void dynamixel2_reset(uint8_t id) {
 	dynamixel2_send_packet(id, dxl_factory_reset, &parameter, size);
 }
 //==================================================================================
+// REBOOT
+//==================================================================================
+void dynamixel2_reboot(uint8_t id) {
+	dynamixel2_clear_receive_buffer();
+	dynamixel2_send_packet(id, dxl_reboot, NULL, 0);
+	uint8_t dummy_packet[64];
+	uint16_t dummy_length;
+	uint32_t start = HAL_GetTick();
+	while ((HAL_GetTick() - start) < 10) {
+		if (dynamixel2_get_status_packet(dummy_packet, &dummy_length))
+			break;
+		if (xTaskGetSchedulerState() == taskSCHEDULER_RUNNING)
+			taskYIELD();
+	}
+
+	dynamixel2_clear_receive_buffer();
+}
+
+//==================================================================================
 // TORQUE
 //==================================================================================
 void dynamixel2_set_torque_enable(uint8_t id, uint8_t enable) {
@@ -151,7 +169,7 @@ void dynamixel2_set_torque_enable(uint8_t id, uint8_t enable) {
 	dynamixel2_write(id, address, &enable, size);
 }
 
-uint8_t dynamixel2_get_torque_status(uint8_t id){
+uint8_t dynamixel2_get_torque_status(uint8_t id) {
 	uint16_t address = 64;
 	uint8_t size = 1;
 	uint8_t return_data[size];
@@ -259,26 +277,23 @@ int32_t dynamixel2_read_present_velocity(uint8_t id) {
 }
 
 /*void dynamixel2_read_DATA(motor_status_t *motor_status){
-	uint16_t address = 122;
-	uint16_t size = 24;
-	uint8_t return_data[size];
-	uint16_t return_data_length;
-	dynamixel2_read(id, address, size, return_data, &return_data_length);
+ uint16_t address = 122;
+ uint16_t size = 24;
+ uint8_t return_data[size];
+ uint16_t return_data_length;
+ dynamixel2_read(id, address, size, return_data, &return_data_length);
 
-	motor_status->Moving = return_data[0];
-	motor_status->present_current = return_data[4] + ((return_data[5]<<8) & 0xFF00);
-	motor_status->present_velocity = return_data[6] + ((return_data[7] << 8) & 0xFF00)
-					+ ((return_data[8] << 16) & 0xFF0000)
-					+ ((return_data[9] << 24) & 0xFF000000);
-	motor_status->present_position = return_data[10] + ((return_data[11] << 8) & 0xFF00)
-					+ ((return_data[12] << 16) & 0xFF0000)
-					+ ((return_data[13] << 24) & 0xFF000000);
-	motor_status->present_temperature = return_data[24];
+ motor_status->Moving = return_data[0];
+ motor_status->present_current = return_data[4] + ((return_data[5]<<8) & 0xFF00);
+ motor_status->present_velocity = return_data[6] + ((return_data[7] << 8) & 0xFF00)
+ + ((return_data[8] << 16) & 0xFF0000)
+ + ((return_data[9] << 24) & 0xFF000000);
+ motor_status->present_position = return_data[10] + ((return_data[11] << 8) & 0xFF00)
+ + ((return_data[12] << 16) & 0xFF0000)
+ + ((return_data[13] << 24) & 0xFF000000);
+ motor_status->present_temperature = return_data[24];
 
-}*/
-
-
-
+ }*/
 
 //==================================================================================
 // CURRENT
@@ -294,7 +309,7 @@ int16_t dynamixel2_read_present_current(uint8_t id) {
 	return current;
 }
 
-void dynamixel2_set_goal_current(uint8_t id, int16_t current){
+void dynamixel2_set_goal_current(uint8_t id, int16_t current) {
 	uint16_t address = 102;
 	uint8_t size = 2;
 	uint8_t data[size];
@@ -324,10 +339,6 @@ int16_t dynamixel2_read_present_temperature(uint8_t id) {
 	int16_t temperature = return_data[0];
 	return temperature;
 }
-
-
-
-
 
 //==================================================================================
 // BAUDRATE
@@ -485,7 +496,7 @@ void dynamixel2_setVelocityLimit(uint8_t id, int32_t velocity_lim) {
 	dynamixel2_write(id, address, data, size);
 }
 
-uint8_t dynamixel2_hardware_error(uint8_t id){
+uint8_t dynamixel2_hardware_error(uint8_t id) {
 	uint16_t address = 70;
 	uint8_t size = 1;
 	uint8_t return_data[size];
@@ -494,8 +505,6 @@ uint8_t dynamixel2_hardware_error(uint8_t id){
 	uint8_t hw_err = return_data[0];
 	return hw_err;
 }
-
-
 
 //==================================================================================
 // OTHER FUNCTIONS
