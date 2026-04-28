@@ -27,7 +27,6 @@ class EthercatThread(QtCore.QThread):
             "target_current": 0,
             "reboot": 0,
             "emergency_stop": 0,
-            "torque_status": 0,
         }
 
         self.master = None

@@ -29,7 +29,7 @@ class MainWindow(QMainWindow):
         3: "RUNNING",
         4: "ERROR",
         5: "OFF",
-        6: "EMERGENCY_STOP",
+        6: "SW_EMERGENCY_STOP",
         7: "GRIPPER_MODE",
     }
 
@@ -49,13 +49,12 @@ class MainWindow(QMainWindow):
         6: "4M",
     }
 
-    # Sentinel: limits not yet received from slave
-    _LIMITS_INITIALIZED = False
-
     def __init__(self, ifname: str = "enx207bd2b452c6"):
         super().__init__()
         self.setWindowTitle("Motor Master IHM")
         self.setMinimumSize(1000, 650)
+
+        self._emergency_active = False
 
         # EtherCAT thread (replaces ROS2)
         self.ec_thread = EthercatThread(ifname)
@@ -122,6 +121,12 @@ class MainWindow(QMainWindow):
         self.torque_switch = self._create_switch("Torque")
         self.led_switch = self._create_switch("LED")
 
+        self.emergency_stop_button = QPushButton("SW EMERGENCY STOP")
+        self.emergency_stop_button.setFixedHeight(70)
+        self.emergency_stop_button.setCheckable(True)
+        self.emergency_stop_button.clicked.connect(self.toggle_emergency_stop)
+        self._update_emergency_style(False)
+
         command_layout.addWidget(QLabel("ID"), 0, 0)
         command_layout.addWidget(self.id_edit, 0, 1)
 
@@ -146,6 +151,8 @@ class MainWindow(QMainWindow):
 
         command_layout.addWidget(self.torque_switch, 5, 0, 1, 2)
         command_layout.addWidget(self.led_switch, 6, 0, 1, 2)
+
+        command_layout.addWidget(self.emergency_stop_button, 7, 0, 1, 5)
 
         command_group.setLayout(command_layout)
 
@@ -284,7 +291,7 @@ class MainWindow(QMainWindow):
             "target_velocity": vel,
             "target_current": cur,
             "reboot": 0,
-            "emergency_stop": 0,
+            "sw_emergency_stop": 1 if self._emergency_active else 0,
         }
 
     def send_command(self, _=None):
@@ -318,6 +325,22 @@ class MainWindow(QMainWindow):
         if previous_torque:
             self.torque_switch.setChecked(True)
             self._send_with_overrides(torque_override=True)
+
+    def toggle_emergency_stop(self):
+        new_state = not self._emergency_active
+        self._emergency_active = new_state
+        self._update_emergency_style(new_state)
+        if new_state:
+            self.torque_switch.blockSignals(True)
+            self.torque_switch.setChecked(False)
+            self.torque_switch.blockSignals(False)
+
+        cmd = self._build_command()
+        cmd["emergency_stop"] = 1 if new_state else 0
+        self.ec_thread.update_command(cmd)
+        print(
+            f"[SEND] SW EMERGENCY STOP = {new_state}, torque_enabled = {cmd['torque_enabled']}"
+        )
 
     # -------------------- update status from EC thread --------------------
     def update_status(self, status: dict):
@@ -394,24 +417,82 @@ class MainWindow(QMainWindow):
             # Disable controls on error
             in_error = raw_state == 4
             in_gripper = raw_state == 7
+            in_emergency = raw_state == 6
+            in_off = raw_state == 5
+            can_control = not in_error and not in_emergency
             mode = self.control_mode_combo.currentData()
-            self.target_position_slider.setEnabled(not in_error and mode == 3)
+            self.target_position_slider.setEnabled(
+                can_control and mode == 3 and not in_off
+            )
             self.target_velocity_slider.setEnabled(
-                not in_error and mode == 1 and not in_gripper
+                can_control and mode == 1 and not in_gripper and not in_off
             )
             self.target_current_slider.setEnabled(
-                not in_error and mode == 0 and not in_gripper
+                can_control and mode == 0 and not in_gripper and not in_off
             )
-            self.reset_current_button.setEnabled(not in_error and not in_gripper)
-            self.reset_velocity_button.setEnabled(not in_error and not in_gripper)
-            self.control_mode_combo.setEnabled(not in_error)
-            self.torque_switch.setEnabled(not in_error)
-            self.led_switch.setEnabled(not in_error)
-            self.btn_ferme.setEnabled(not in_error)
-            self.btn_ouvert.setEnabled(not in_error)
+            self.reset_current_button.setEnabled(
+                can_control and not in_gripper and not in_off
+            )
+            self.reset_velocity_button.setEnabled(
+                can_control and not in_gripper and not in_off
+            )
+            self.control_mode_combo.setEnabled(can_control and not in_gripper)
+            self.torque_switch.setEnabled(can_control)
+            self.led_switch.setEnabled(can_control)
+            self.btn_ferme.setEnabled(can_control and not in_off)
+            self.btn_ouvert.setEnabled(can_control and not in_off)
+            self.emergency_stop_button.setEnabled(not in_error)
+
+            if in_emergency != self._emergency_active:
+                self._emergency_active = in_emergency
+                self._update_emergency_style(in_emergency)
 
         except Exception as e:
             print(f"[ERROR update_status] {e}")
+
+    def _update_emergency_style(self, active: bool):
+        if active:
+            self.emergency_stop_button.setText("EMERGENCY ACTIVE")
+            self.emergency_stop_button.setStyleSheet(
+                """
+                QPushButton {
+                    background-color: #aa0000; color: white;
+                    font-weight: bold; font-size: 40px;
+                    border-radius: 8px; border: 3px solid #ff0000;
+                }
+            """
+            )
+            self.centralWidget().setStyleSheet(
+                """
+                QWidget { background-color: #3a0000; color: #ff6666; }
+                QGroupBox { 
+                    border: 2px solid #ff0000; border-radius: 6px;
+                    margin-top: 6px; color: #ff4444; font-weight: bold;
+                }
+                QGroupBox::title { subcontrol-origin: margin; left: 8px; }
+                QLCDNumber { background-color: #1a0000; color: #ff4444; border: 1px solid #ff0000; }
+                QPushButton { background-color: #5a0000; color: #ff9999; border: 1px solid #ff0000; border-radius: 4px; }
+                QSlider::groove:horizontal { background: #5a0000; height: 6px; border-radius: 3px; }
+                QSlider::handle:horizontal { background: #ff4444; width: 16px; height: 16px; border-radius: 8px; margin: -5px 0; }
+                QComboBox { background-color: #5a0000; color: #ff9999; border: 1px solid #ff0000; }
+                QLineEdit { background-color: #5a0000; color: #ff9999; border: 1px solid #ff0000; }
+                QLabel { color: #ff6666; }
+            """
+            )
+        else:
+            self.emergency_stop_button.setText("SW EMERGENCY STOP")
+            self.emergency_stop_button.setStyleSheet(
+                """
+                QPushButton {
+                    background-color: #ff0000; color: white;
+                    font-weight: bold; font-size: 40px;
+                    border-radius: 8px;
+                }
+                QPushButton:pressed { background-color: #aa0000; }
+            """
+            )
+            # Remet le style par défaut
+            self.centralWidget().setStyleSheet("")
 
     def on_ec_error(self, msg: str):
         self.statusBar().showMessage(f"EC error: {msg}")
