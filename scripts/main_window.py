@@ -132,7 +132,7 @@ class MainWindow(QMainWindow):
         command_layout.addWidget(QLabel("Target position"), 1, 0)
         command_layout.addWidget(self.target_position_slider, 1, 1)
         command_layout.addWidget(self.position_label, 1, 2)
-        command_layout.addWidget(self.btn_ferme, 1, 3)  # ← nouveau
+        command_layout.addWidget(self.btn_ferme, 1, 3)
         command_layout.addWidget(self.btn_ouvert, 1, 4)
 
         command_layout.addWidget(QLabel("Target velocity"), 2, 0)
@@ -374,7 +374,7 @@ class MainWindow(QMainWindow):
 
             self.moving_value.setText("Yes" if status.get("moving") else "No")
             self.hw_error_value.setText(
-                f"0x{status.get('hardware_error_status', 0):02X}"
+                f"0b{status.get('hardware_error_status', 0):08b}"
             )
 
             max_lim = int(status.get("max_pos_lim", 0))
@@ -387,7 +387,6 @@ class MainWindow(QMainWindow):
             self.velocity_lim_value.setText(str(vel_lim))
             self.current_lim_value.setText(str(cur_lim))
 
-            # Apply limits to slider only once (or whenever they change)
             if max_lim != min_lim and (
                 max_lim != self.target_position_slider.maximum()
                 or min_lim != self.target_position_slider.minimum()
@@ -461,23 +460,7 @@ class MainWindow(QMainWindow):
                 }
             """
             )
-            self.centralWidget().setStyleSheet(
-                """
-                QWidget { background-color: #3a0000; color: #ff6666; }
-                QGroupBox { 
-                    border: 2px solid #ff0000; border-radius: 6px;
-                    margin-top: 6px; color: #ff4444; font-weight: bold;
-                }
-                QGroupBox::title { subcontrol-origin: margin; left: 8px; }
-                QLCDNumber { background-color: #1a0000; color: #ff4444; border: 1px solid #ff0000; }
-                QPushButton { background-color: #5a0000; color: #ff9999; border: 1px solid #ff0000; border-radius: 4px; }
-                QSlider::groove:horizontal { background: #5a0000; height: 6px; border-radius: 3px; }
-                QSlider::handle:horizontal { background: #ff4444; width: 16px; height: 16px; border-radius: 8px; margin: -5px 0; }
-                QComboBox { background-color: #5a0000; color: #ff9999; border: 1px solid #ff0000; }
-                QLineEdit { background-color: #5a0000; color: #ff9999; border: 1px solid #ff0000; }
-                QLabel { color: #ff6666; }
-            """
-            )
+
         else:
             self.emergency_stop_button.setText("SW EMERGENCY STOP")
             self.emergency_stop_button.setStyleSheet(
@@ -490,8 +473,6 @@ class MainWindow(QMainWindow):
                 QPushButton:pressed { background-color: #aa0000; }
             """
             )
-            # Remet le style par défaut
-            self.centralWidget().setStyleSheet("")
 
     def on_ec_error(self, msg: str):
         self.statusBar().showMessage(f"EC error: {msg}")
