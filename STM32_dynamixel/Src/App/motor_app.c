@@ -11,15 +11,18 @@ motor_command_t motor_cmd;
 
 #define Init_MAX_limit 		4095
 #define Init_MIN_limit 		0
-#define With_GRIPPER		1
+#define With_GRIPPER		0
 
 uint8_t prev_emergency = 0;
+uint8_t error_count = 0;
+uint32_t last_reconnect_attempt = 0;
+static uint32_t last_master_rx_tick = 0;
 
 //motor_status_t motor_status;
 
 void motor_init(uint8_t id, motor_command_t *motor_cmd,
 		motor_status_t *motor_status) {
-	term_printf("\n\rDynamixel XM430-W350 init...\n\r");
+	term_printf("\n\r[INIT-001]Dynamixel XM430-W350 init...\n\r");
 	motor_cmd->id = id;
 	motor_status->id = id;
 	motor_cmd->LED_state = false;
@@ -41,14 +44,6 @@ void motor_init(uint8_t id, motor_command_t *motor_cmd,
 		dynamixel2_set_torque_enable(id, 1);
 		dynamixel2_set_goal_velocity(id, 0);
 
-		/*uint8_t cnt = 0;
-		 uint32_t t0 = HAL_GetTick();
-		 do {
-		 dynamixel2_set_goal_velocity(id, 50);
-		 HAL_Delay(50);
-		 cnt = (abs(dynamixel2_read_present_current(id)) >= 5) ? cnt+1 : 0;
-		 if (HAL_GetTick() - t0 > 10000) {  break; }
-		 } while(cnt < 2);*/
 		do {
 			dynamixel2_set_goal_velocity(id, 50);
 		} while (HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_0) != GPIO_PIN_RESET);
@@ -60,17 +55,10 @@ void motor_init(uint8_t id, motor_command_t *motor_cmd,
 				% 4096) + 4096) % 4096) - 20;
 		dynamixel2_set_torque_enable(id, 0);
 		dynamixel2_setMaxPositionLimit(id, motor_status->Max_pos_lim);
+		term_printf("[INIT-002]first limit position saved !\r\n");
 		dynamixel2_set_torque_enable(id, 1);
 		HAL_Delay(100);
 
-		// Recherche limite MIN
-		/*cnt = 0; t0 = HAL_GetTick();
-		 do {
-		 dynamixel2_set_goal_velocity(id, -50);     // ← underscore corrigé
-		 HAL_Delay(50);
-		 cnt = (abs(dynamixel2_read_present_current(id)) >= 7) ? cnt+1 : 0;
-		 if (HAL_GetTick() - t0 > 10000) {  break; }
-		 } while(cnt < 3);*/
 
 		do {
 			dynamixel2_set_goal_velocity(id, -50);
@@ -82,12 +70,14 @@ void motor_init(uint8_t id, motor_command_t *motor_cmd,
 				% 4096) + 4096) % 4096) + 20;
 		dynamixel2_set_torque_enable(id, 0);
 		dynamixel2_setMinPositionLimit(id, motor_status->Min_pos_lim);
+		term_printf("[INIT-002]second limit position saved !\r\n");
 		dynamixel2_setOperatingMode(id, motor_cmd->control_mode);
 		dynamixel2_set_torque_enable(id, 1);
 		int32_t moyenne =
 				(motor_status->Max_pos_lim + motor_status->Min_pos_lim) / 2;
 		dynamixel2_set_goal_position(id, moyenne);
 		HAL_Delay(500);
+
 		dynamixel2_set_torque_enable(id, motor_cmd->torque_enabled);
 		motor_status->state = MOTOR_GRIPPER_STATE;
 
@@ -102,6 +92,8 @@ void motor_init(uint8_t id, motor_command_t *motor_cmd,
 		dynamixel2_set_torque_enable(id, 1);
 		dynamixel2_set_goal_position(id, motor_cmd->target_position);
 		motor_status->state = MOTOR_STATE_READY;
+		term_printf("[INIT-002]Software limits saved !\r\n");
+
 #endif
 
 		motor_status->Current_lim = dynamixel2_getCurrentLimit(id);
@@ -110,12 +102,11 @@ void motor_init(uint8_t id, motor_command_t *motor_cmd,
 		motor_status->baudrate = dynamixel2_get_BaudRate(id);
 		motor_cmd->torque_enabled = true;
 
-		//dynamixel2_set_LED(id, motor_cmd->LED_state);
-		term_printf("Dynamixel XM430-W350 OK!\r\n");
+		term_printf("[INIT-001]Dynamixel XM430-W350 OK!\r\n");
 		term_printf("\n\r");
 	} else {
 		motor_status->state = MOTOR_STATE_ERROR;
-		term_printf("Connection to the motor failed.\r\n");
+		term_printf("[INIT-001]Connection to the motor failed.\r\n");
 		term_printf("\n\r");
 	}
 }
@@ -133,11 +124,13 @@ void motor_command(motor_command_t *motor_cmd, motor_status_t *motor_status) {
 	if (motor_status->state == MOTOR_SW_EMERGENCY_STOP) {
 		motor_cmd->torque_enabled = 0;
 		dynamixel2_set_torque_enable(motor_cmd->id, motor_cmd->torque_enabled);
+		if(prev_emergency == 0){term_printf("[SAF-002]Master initiated Emergency STOP\r\n");}
 		prev_emergency = 1;
+
 	} else if (motor_status->state != MOTOR_SW_EMERGENCY_STOP
 			&& prev_emergency == 1) {
 		dynamixel2_reboot(motor_status->id);
-		term_printf("Reboot motor\r\n");
+		term_printf("[SAF-007]Reboot motor\r\n");
 		prev_emergency = 0;
 	} else if (motor_status->state == MOTOR_STATE_READY
 			|| motor_status->state == MOTOR_STATE_RUNNING
@@ -149,6 +142,7 @@ void motor_command(motor_command_t *motor_cmd, motor_status_t *motor_status) {
 			motor_status->control_mode_st = motor_cmd->control_mode;
 			dynamixel2_set_torque_enable(motor_cmd->id,
 					motor_cmd->torque_enabled);
+			term_printf("[CMD-003] control mode swiched\r\n");
 		} else {
 			dynamixel2_set_torque_enable(motor_cmd->id,
 					motor_cmd->torque_enabled);
@@ -169,6 +163,9 @@ void motor_command(motor_command_t *motor_cmd, motor_status_t *motor_status) {
 		}
 #endif
 
+	} else if (motor_status->state == MOTOR_STATE_ERROR) {
+		motor_try_reconnect(motor_cmd, motor_status);
+		//couper alimentation moteur
 	}
 }
 
@@ -178,18 +175,24 @@ void motor_status(motor_status_t *motor_status, motor_command_t *motor_cmd) {
 	}
 
 	else if (dynamixel2_ping(motor_status->id) == 0) {
-		motor_status->state = MOTOR_STATE_ERROR;
-		motor_status->present_position = 0;
+		error_count += 1;
+		if (error_count == 3) {
+			motor_status->state = MOTOR_STATE_ERROR;
 
-		motor_status->present_velocity = 0;
-		motor_status->present_current = 0;
+			motor_status->present_position = 0;
 
-		motor_status->present_temperature = 0;
-		motor_status->control_mode_st = 0;
+			motor_status->present_velocity = 0;
+			motor_status->present_current = 0;
+
+			motor_status->present_temperature = 0;
+			motor_status->control_mode_st = 0;
+		}
 
 	} else if (motor_status->present_temperature > 70
 			|| motor_status->Hardware_error_status != 0) {
 		motor_status->state = MOTOR_HW_EMERGENCY_STOP;
+		error_count = 0;
+		term_printf("[SAF-001] Autonomous Emergency Stop\n\r");
 	} else {
 		if (motor_cmd->torque_enabled == 0) {
 			motor_status->state = MOTOR_STATE_OFF;
@@ -230,9 +233,52 @@ void motor_status(motor_status_t *motor_status, motor_command_t *motor_cmd) {
 				motor_status->id);
 		motor_status->Hardware_error_status = dynamixel2_hardware_error(
 				motor_status->id);
+		error_count = 0;
 
 	}
 
+}
+
+uint8_t motor_try_reconnect(motor_command_t *motor_cmd,
+		motor_status_t *motor_status) {
+	uint32_t now = HAL_GetTick();
+	if ((now - last_reconnect_attempt) < 500) {
+		return false;
+	}
+	last_reconnect_attempt = now;
+	term_printf("[SAF-004] Attempting motor reconnection...\r\n");
+	if (dynamixel2_ping(motor_status->id)) {
+		term_printf("[SAF-004] Motor found ! Reinitializing...\r\n");
+		error_count = 0;
+		motor_status->state = MOTOR_STATE_INIT;
+		motor_init(motor_status->id, motor_cmd, motor_status);
+		return 1;
+	}
+	term_printf("[SAF-004] Motor not responding.\r\n");
+	return 0;
+
+}
+void motor_update_master_watchdog(void) {
+	last_master_rx_tick = HAL_GetTick();
+}
+uint8_t motor_check_master_timeout(motor_status_t *motor_status,
+		motor_command_t *motor_cmd) {
+	if ((HAL_GetTick() - last_master_rx_tick) > COMM_TIMEOUT_MS) {
+		if (motor_status->state != MOTOR_STATE_ERROR
+				&& motor_status->state != MOTOR_COMM_LOSS) {
+			motor_status->state = MOTOR_COMM_LOSS;
+			dynamixel2_set_torque_enable(motor_cmd->id, 0);
+			motor_cmd->torque_enabled = 0;
+			term_printf("[SAF-003] Master timeout! Motor disabled.\r\n");
+		}
+		return 1;
+	}
+
+	if (motor_status->state == MOTOR_COMM_LOSS) {
+		term_printf("[SAF-003] Master reconnected.\r\n");
+		motor_status->state = MOTOR_STATE_INIT;
+	}
+	return 0;
 }
 
 void motor_set_target_position(motor_command_t *motor_cmd, int32_t position) {

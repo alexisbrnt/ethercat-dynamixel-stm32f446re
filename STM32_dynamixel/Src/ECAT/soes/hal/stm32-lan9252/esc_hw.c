@@ -478,6 +478,6 @@ void ESC_init (const esc_cfg_t * config)
    {
       while (1);
    }
-   term_printf("LAN9252 OK ! \n\r");
+   term_printf("[INIT-001]LAN9252 OK ! \n\r");
 
 }

@@ -104,6 +104,8 @@ void cb_get_inputs() {
 }
 
 void cb_set_outputs() {
+	motor_update_master_watchdog();
+
 	motor_cmd1.id = Obj.ID_RX;
 	motor_cmd1.control_mode = Obj.control_mode;
 	motor_cmd1.torque_enabled = Obj.torque_enabled;
@@ -128,7 +130,7 @@ static void task_EtherCAT(void *pvParameters) {
 		ecat_slv();
 		if ((ESCvar.App.state & APPSTATE_OUTPUT) > 0) {
 			ecat_operational = 1;
-			term_printf("EtherCAT OP reached!\r\n");
+			term_printf("[TIM-001]EtherCAT OP reached!\r\n");
 		}
 		vTaskDelay(pdMS_TO_TICKS(1));
 	}
@@ -158,10 +160,13 @@ static void task_motor_status(void *pvParameters) {
 	while (!ecat_operational) {
 		vTaskDelay(pdMS_TO_TICKS(50));
 	}
-
+	motor_update_master_watchdog();
 	for (;;) {
 		if (xSemaphoreTake(mutex_motor, pdMS_TO_TICKS(5))) {
-			motor_status(&motor_status1, &motor_cmd1);
+			if (!motor_check_master_timeout(&motor_status1, &motor_cmd1)) {
+				motor_status(&motor_status1, &motor_cmd1);
+
+			}
 
 			xSemaphoreGive(mutex_motor);
 		}
@@ -196,7 +201,6 @@ int main(void) {
 	MX_DMA_Init();
 	MX_USART1_UART_Init();
 	MX_USART2_UART_Init();
-
 	dynamixel2_dma_init();
 	/* USER CODE BEGIN 2 */
 	term_printf("\n\r===== Boot =====\r\n");
@@ -216,15 +220,14 @@ int main(void) {
 #else
 
 	while (1) {
-		GPIO_PinState state_close = HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_1);
-		GPIO_PinState state_open = HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_0);
+		HAL_GPIO_WritePin(GPIOC, GPIO_PIN_8, GPIO_PIN_SET);
+		HAL_Delay(3000);  // ← laisser le moteur booter
+		dynamixel2_clear_receive_buffer();  // ← vider le buffer
+		term_printf("ON:  %u\r\n", dynamixel2_ping(ID_1));
 
-		if (state_open == GPIO_PIN_RESET) {
-			term_printf("open\r\n");
-		} else if (state_close == GPIO_PIN_RESET){
-			term_printf("close\r\n");
-		}
-
+		HAL_GPIO_WritePin(GPIOC, GPIO_PIN_8, GPIO_PIN_RESET);
+		HAL_Delay(2000);
+		term_printf("OFF: %u\r\n", dynamixel2_ping(ID_1));
 	}
 
 #endif

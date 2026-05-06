@@ -23,7 +23,9 @@ inline static uint8_t spi_transfer(uint8_t byte);
  ****************************************************************/
 void spi_setup(void)
 {
-	/* data */
+	//SCK  PA5
+	//MISO PA6
+	//MOSI PA7
 	GPIO_InitTypeDef gpio = {0};
 
 	/* enable GPIO TX/RX clock */
@@ -64,10 +66,7 @@ void spi_setup(void)
 
 	SpiHandle.Init.TIMode = SPI_TIMODE_DISABLE;
 	SpiHandle.Init.CRCPolynomial = 7;
-	//SpiHandle.Init.CRCLength = SPI_CRC_LENGTH_DATASIZE;
-	//SpiHandle.Init.NSSPMode = SPI_NSS_PULSE_ENABLED; //NOTE: ?
 
-	/* initialize SPI */
 	HAL_SPI_Init(&SpiHandle);
 }
 

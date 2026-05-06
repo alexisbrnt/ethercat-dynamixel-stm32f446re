@@ -17,10 +17,10 @@ uint16_t update_crc(uint16_t crc_accum, uint8_t *data_blk_ptr,
 		uint16_t data_blk_size);
 void dynamixel2_send_packet(uint8_t id, dynamixel2_instruction_t inst,
 		uint8_t *params, uint16_t params_length);
-bool dynamixel2_parse_status_packet(uint8_t *packet, uint32_t packet_length,
+uint8_t dynamixel2_parse_status_packet(uint8_t *packet, uint32_t packet_length,
 		uint8_t *id, uint8_t *params, uint16_t *params_length, uint8_t *error,
-		bool *crc_check);
-bool dynamixel2_get_status_packet(uint8_t *packet, uint16_t *packet_length);
+		uint8_t *crc_check);
+uint8_t dynamixel2_get_status_packet(uint8_t *packet, uint16_t *packet_length);
 
 //==================================================================================
 // SEND/RECEIVE FRAME TO/FROM DYNAMIXEL
@@ -70,7 +70,7 @@ void dynamixel2_write(uint8_t id, uint16_t address, uint8_t *data,
 	dynamixel2_clear_receive_buffer();
 }
 //==================================================================================
-bool dynamixel2_read(uint8_t id, uint16_t address, uint16_t data_length,
+uint8_t dynamixel2_read(uint8_t id, uint16_t address, uint16_t data_length,
 		uint8_t *return_data, uint16_t *return_data_length) {
 	uint8_t params[4];
 
@@ -90,19 +90,19 @@ bool dynamixel2_read(uint8_t id, uint16_t address, uint16_t data_length,
 
 	while (!dynamixel2_get_status_packet(status_packet, &status_packet_length)) {
 		if ((HAL_GetTick() - start) > 10)
-			return false;
+			return 0;
 		if (xTaskGetSchedulerState() == taskSCHEDULER_RUNNING)
 			taskYIELD();
 	}
 	uint8_t id_r;
 	uint8_t error;
-	bool crc_check;
+	uint8_t crc_check;
 	dynamixel2_parse_status_packet(status_packet, status_packet_length, &id_r,
 			return_data, return_data_length, &error, &crc_check);
 	return (id_r == id) && (error == 0x00) && (crc_check);
 }
 
-bool dynamixel2_ping(uint8_t id) {
+uint8_t dynamixel2_ping(uint8_t id) {
 	uint8_t packet[32];
 	uint16_t packet_length;
 
@@ -111,7 +111,7 @@ bool dynamixel2_ping(uint8_t id) {
 	//avant c'était HAL_GetTick()
 	uint32_t start = xTaskGetTickCount();
 	while (!dynamixel2_get_status_packet(packet, &packet_length)) {
-		if ((xTaskGetTickCount() - start) > 100)
+		if ((HAL_GetTick()- start) > 100)
 			return 0;
 	}
 
@@ -542,9 +542,9 @@ void dynamixel2_clear_receive_buffer(void) {
 	dma_clear_buffer();
 }
 //==================================================================================
-bool dynamixel2_parse_status_packet(uint8_t *packet, uint32_t packet_length,
+uint8_t dynamixel2_parse_status_packet(uint8_t *packet, uint32_t packet_length,
 		uint8_t *id, uint8_t *params, uint16_t *params_length, uint8_t *error,
-		bool *crc_check) {
+		uint8_t *crc_check) {
 	/* Check instruction. */
 	if (packet[7] == 0x55) {
 		*id = packet[4];
@@ -558,31 +558,31 @@ bool dynamixel2_parse_status_packet(uint8_t *packet, uint32_t packet_length,
 
 		/* CRC. */
 		uint16_t crc = update_crc(0, packet, packet_length - 2); /* Calculating CRC. */
-		bool crc_l = packet[packet_length - 2] == GET_LOW_ORDER_BYTE(crc); /* CRC 1 (Low-order byte). */
-		bool crc_h = packet[packet_length - 1] == GET_HIGH_ORDER_BYTE(crc); /* CRC 2 (High-order byte). */
+		uint8_t crc_l = packet[packet_length - 2] == GET_LOW_ORDER_BYTE(crc); /* CRC 1 (Low-order byte). */
+		uint8_t crc_h = packet[packet_length - 1] == GET_HIGH_ORDER_BYTE(crc); /* CRC 2 (High-order byte). */
 		*crc_check = (crc_l && crc_h);
 
-		return true;
+		return 1;
 	}
-	return false;
+	return 0;
 }
 //==================================================================================
 
-bool dynamixel2_get_status_packet(uint8_t *packet, uint16_t *packet_length) {
+uint8_t dynamixel2_get_status_packet(uint8_t *packet, uint16_t *packet_length) {
 	uint16_t available = dma_available();
 
 	if (available < 11) {
 
-		return false;
+		return 0;
 	}
 
-	bool header_found = false;
+	uint8_t header_found = 0;
 	uint16_t offset = 0;
 
 	while ((offset + 10) < available) {
 		if (dma_peek(offset) == 0xFF && dma_peek(offset + 1) == 0xFF
 				&& dma_peek(offset + 2) == 0xFD) {
-			header_found = true;
+			header_found = 1;
 			break;
 		}
 		offset++;
@@ -590,7 +590,7 @@ bool dynamixel2_get_status_packet(uint8_t *packet, uint16_t *packet_length) {
 
 	if (!header_found) {
 		dma_skip(offset);
-		return false;
+		return 0;
 	}
 
 	if (offset > 0) {
@@ -599,14 +599,14 @@ bool dynamixel2_get_status_packet(uint8_t *packet, uint16_t *packet_length) {
 	}
 
 	if (available < 7) {
-		return false;
+		return 0;
 	}
 
 	uint16_t length_field = dma_peek(5) + ((uint16_t) dma_peek(6) << 8);
 	uint16_t total_packet_length = length_field + 7;
 
 	if (available < total_packet_length) {
-		return false;
+		return 0;
 	}
 
 	*packet_length = total_packet_length;
@@ -616,7 +616,7 @@ bool dynamixel2_get_status_packet(uint8_t *packet, uint16_t *packet_length) {
 
 	dma_skip(total_packet_length);
 
-	return true;
+	return 1;
 }
 //==================================================================================
 /* Source: https://emanual.robotis.com/docs/en/dxl/crc/ */

@@ -12,8 +12,8 @@ def main():
     parser = argparse.ArgumentParser(description="Motor IHM + EtherCAT")
     parser.add_argument(
         "--ifname",
-        default="enx207bd2b452c6",
-        help="Network interface for EtherCAT (default: enx207bd2b452c6)",
+        default="enxa453eed090bc",
+        help="Network interface for EtherCAT (default: enxa453eed090bc)",
     )
     args = parser.parse_args()
 

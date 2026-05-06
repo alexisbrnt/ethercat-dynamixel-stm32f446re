@@ -10,6 +10,8 @@
 #include <stdint.h>
 #include <stdbool.h>
 
+#define COMM_TIMEOUT_MS		500
+
 typedef enum
 {
 	MOTOR_STATE_IDLE = 0,
@@ -21,6 +23,7 @@ typedef enum
 	MOTOR_SW_EMERGENCY_STOP,
 	MOTOR_GRIPPER_STATE,
 	MOTOR_HW_EMERGENCY_STOP,
+	MOTOR_COMM_LOSS,
 } motor_state_t;
 
 typedef struct{
@@ -59,6 +62,9 @@ typedef struct{
 void motor_init(uint8_t id, motor_command_t *motor_cmd, motor_status_t *motor_status);
 void motor_command(motor_command_t *motor_cmd, motor_status_t *motor_status);
 void motor_status(motor_status_t *motor_status,motor_command_t *motor_cmd);
+uint8_t motor_try_reconnect(motor_command_t *motor_cmd, motor_status_t *motor_status);
+void motor_update_master_watchdog(void);
+uint8_t motor_check_master_timeout(motor_status_t *motor_status, motor_command_t *motor_cmd);
 
 void motor_LED(motor_command_t *motor_cmd, uint8_t led_state);
 void motor_set_target_position(motor_command_t *motor_cmd, int32_t position);

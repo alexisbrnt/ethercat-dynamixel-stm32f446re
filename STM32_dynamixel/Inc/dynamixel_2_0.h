@@ -56,10 +56,10 @@ typedef enum
 void max485_send(uint8_t *data, uint32_t length);
 void dynamixel2_write(uint8_t id, uint16_t address, uint8_t *data,
 		uint16_t data_length);
-bool dynamixel2_read(uint8_t id, uint16_t address, uint16_t data_length,
+uint8_t dynamixel2_read(uint8_t id, uint16_t address, uint16_t data_length,
 		uint8_t *return_data, uint16_t *return_data_length);
 void dynamixel2_reboot(uint8_t id);
-bool dynamixel2_ping(uint8_t id) ;
+uint8_t dynamixel2_ping(uint8_t id) ;
 void dynamixel2_reset(uint8_t id);
 void dynamixel2_set_torque_enable(uint8_t id, uint8_t enable);
 uint8_t dynamixel2_get_torque_status(uint8_t id);
@@ -93,10 +93,10 @@ uint8_t dynamixel2_hardware_error(uint8_t id);
 void dynamixel2_send_packet(uint8_t id, dynamixel2_instruction_t inst,
 		uint8_t *params, uint16_t params_length);
 void dynamixel2_clear_receive_buffer(void);
-bool dynamixel2_parse_status_packet(uint8_t *packet, uint32_t packet_length,
+uint8_t dynamixel2_parse_status_packet(uint8_t *packet, uint32_t packet_length,
 		uint8_t *id, uint8_t *params, uint16_t *params_length, uint8_t *error,
-		bool *crc_check);
-bool dynamixel2_get_status_packet(uint8_t *packet, uint16_t *packet_length);
+		uint8_t *crc_check);
+uint8_t dynamixel2_get_status_packet(uint8_t *packet, uint16_t *packet_length);
 uint16_t update_crc(uint16_t crc_accum, uint8_t *data_blk_ptr,
 		uint16_t data_blk_size);
 

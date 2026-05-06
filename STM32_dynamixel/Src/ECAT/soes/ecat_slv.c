@@ -349,7 +349,7 @@ void ecat_slv (void)
  */
 void ecat_slv_init (esc_cfg_t * config)
 {
-   term_printf("\n\rLAN9252 init...\r\n");
+   term_printf("\n\r[INIT-001]LAN9252 init...\r\n");
 
    /* Init watchdog */
    watchdog = config->watchdog_cnt;

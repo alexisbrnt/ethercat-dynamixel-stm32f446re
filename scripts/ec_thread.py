@@ -11,7 +11,7 @@ class EthercatThread(QtCore.QThread):
     error_occurred = QtCore.pyqtSignal(str)
     connected = QtCore.pyqtSignal()
 
-    def __init__(self, ifname: str = "enx207bd2b452c6"):
+    def __init__(self, ifname: str = "enxa453eed090bc"):
         super().__init__()
         self.ifname = ifname
         self.running = True
@@ -64,19 +64,32 @@ class EthercatThread(QtCore.QThread):
         self.master.write_state()
         self.master.state_check(pysoem.SAFEOP_STATE, 500_000)
 
-        self.master.send_processdata()
-        self.master.receive_processdata(5000)
+        # Pomper plusieurs cycles avant de demander OP
+        default_cmd = dict(self._latest_command)
+        self.slave.output = self._pack_outputs(default_cmd)
+        for _ in range(100):  # ~100 ms à 1 ms/cycle
+            self.master.send_processdata()
+            self.master.receive_processdata(5000)
+            time.sleep(0.001)
 
         self.master.state = pysoem.OP_STATE
         self.master.write_state()
-        state = self.master.state_check(pysoem.OP_STATE, 500_000)
 
-        if state != pysoem.OP_STATE:
+        # Continuer à envoyer pendant la transition
+        for _ in range(200):
+            self.master.send_processdata()
+            self.master.receive_processdata(5000)
+            state = self.master.state_check(pysoem.OP_STATE, 10_000)
+            if state == pysoem.OP_STATE:
+                break
+            time.sleep(0.001)
+        else:
             self.master.read_state()
+            sl = self.master.slaves[0]
             raise RuntimeError(
-                f"OP transition failed, current state = {self.master.state}"
+                f"OP transition failed — master_state={self.master.state}, "
+                f"slave_state={sl.state}, al_status=0x{sl.al_status:04x}"
             )
-
         print("[EC] EtherCAT OPERATIONAL")
 
     # ---------- pack / unpack ----------
@@ -151,7 +164,7 @@ class EthercatThread(QtCore.QThread):
 
                 self.slave.output = self._pack_outputs(cmd)
                 self.master.send_processdata()
-                self.master.receive_processdata(500)
+                self.master.receive_processdata(2000)
                 publish_divider += 1
                 if publish_divider >= 25:
                     publish_divider = 0

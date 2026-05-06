@@ -47,9 +47,10 @@ class MainWindow(QMainWindow):
         4: "2M",
         5: "3M",
         6: "4M",
+        7: "4.5M",
     }
 
-    def __init__(self, ifname: str = "enx207bd2b452c6"):
+    def __init__(self, ifname: str = "enxa453eed090bc"):
         super().__init__()
         self.setWindowTitle("Motor Master IHM")
         self.setMinimumSize(1000, 650)
@@ -225,8 +226,7 @@ class MainWindow(QMainWindow):
     @staticmethod
     def _create_switch(text):
         cb = QCheckBox(text)
-        cb.setStyleSheet(
-            """
+        cb.setStyleSheet("""
             QCheckBox::indicator {
                 width: 50px; height: 25px;
             }
@@ -236,8 +236,7 @@ class MainWindow(QMainWindow):
             QCheckBox::indicator:checked {
                 background-color: #00ff00; border-radius: 12px;
             }
-        """
-        )
+        """)
         return cb
 
     def update_position_label(self, value):
@@ -451,28 +450,24 @@ class MainWindow(QMainWindow):
     def _update_emergency_style(self, active: bool):
         if active:
             self.emergency_stop_button.setText("EMERGENCY ACTIVE")
-            self.emergency_stop_button.setStyleSheet(
-                """
+            self.emergency_stop_button.setStyleSheet("""
                 QPushButton {
                     background-color: #aa0000; color: white;
                     font-weight: bold; font-size: 40px;
                     border-radius: 8px; border: 3px solid #ff0000;
                 }
-            """
-            )
+            """)
 
         else:
             self.emergency_stop_button.setText("SW EMERGENCY STOP")
-            self.emergency_stop_button.setStyleSheet(
-                """
+            self.emergency_stop_button.setStyleSheet("""
                 QPushButton {
                     background-color: #ff0000; color: white;
                     font-weight: bold; font-size: 40px;
                     border-radius: 8px;
                 }
                 QPushButton:pressed { background-color: #aa0000; }
-            """
-            )
+            """)
 
     def on_ec_error(self, msg: str):
         self.statusBar().showMessage(f"EC error: {msg}")
