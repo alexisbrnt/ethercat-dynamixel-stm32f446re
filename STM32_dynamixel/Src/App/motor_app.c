@@ -18,8 +18,6 @@ uint8_t error_count = 0;
 uint32_t last_reconnect_attempt = 0;
 static uint32_t last_master_rx_tick = 0;
 
-//motor_status_t motor_status;
-
 void motor_init(uint8_t id, motor_command_t *motor_cmd,
 		motor_status_t *motor_status) {
 	term_printf("\n\r[INIT-001]Dynamixel XM430-W350 init...\n\r");
@@ -124,7 +122,9 @@ void motor_command(motor_command_t *motor_cmd, motor_status_t *motor_status) {
 	if (motor_status->state == MOTOR_SW_EMERGENCY_STOP) {
 		motor_cmd->torque_enabled = 0;
 		dynamixel2_set_torque_enable(motor_cmd->id, motor_cmd->torque_enabled);
-		if(prev_emergency == 0){term_printf("[SAF-002]Master initiated Emergency STOP\r\n");}
+		if (prev_emergency == 0) {
+			term_printf("[SAF-002]Master initiated Emergency STOP\r\n");
+		}
 		prev_emergency = 1;
 
 	} else if (motor_status->state != MOTOR_SW_EMERGENCY_STOP
@@ -142,7 +142,7 @@ void motor_command(motor_command_t *motor_cmd, motor_status_t *motor_status) {
 			motor_status->control_mode_st = motor_cmd->control_mode;
 			dynamixel2_set_torque_enable(motor_cmd->id,
 					motor_cmd->torque_enabled);
-			term_printf("[CMD-003] control mode swiched\r\n");
+			//term_printf("[CMD-003] control mode swiched\r\n");
 		} else {
 			dynamixel2_set_torque_enable(motor_cmd->id,
 					motor_cmd->torque_enabled);
@@ -164,7 +164,9 @@ void motor_command(motor_command_t *motor_cmd, motor_status_t *motor_status) {
 #endif
 
 	} else if (motor_status->state == MOTOR_STATE_ERROR) {
+		//HAL_GPIO_WritePin(GPIOC, GPIO_PIN_8, GPIO_PIN_RESET);
 		motor_try_reconnect(motor_cmd, motor_status);
+
 		//couper alimentation moteur
 	}
 }
@@ -172,6 +174,9 @@ void motor_command(motor_command_t *motor_cmd, motor_status_t *motor_status) {
 void motor_status(motor_status_t *motor_status, motor_command_t *motor_cmd) {
 	if (motor_cmd->emergency_stop == 1) {
 		motor_status->state = MOTOR_SW_EMERGENCY_STOP;
+	}
+	else if (motor_status->state == MOTOR_STATE_ERROR){
+		return;
 	}
 
 	else if (dynamixel2_ping(motor_status->id) == 0) {
@@ -188,11 +193,13 @@ void motor_status(motor_status_t *motor_status, motor_command_t *motor_cmd) {
 			motor_status->control_mode_st = 0;
 		}
 
-	} else if (motor_status->present_temperature > 70
-			|| motor_status->Hardware_error_status != 0) {
+	} else if (motor_status->present_temperature > 70 || motor_status->Hardware_error_status != 0
+			) {
 		motor_status->state = MOTOR_HW_EMERGENCY_STOP;
 		error_count = 0;
 		term_printf("[SAF-001] Autonomous Emergency Stop\n\r");
+		term_printf("temperature : %u\r\n", motor_status->present_temperature);
+		term_printf("hw error : %u\r\n", motor_status->Hardware_error_status);
 	} else {
 		if (motor_cmd->torque_enabled == 0) {
 			motor_status->state = MOTOR_STATE_OFF;
@@ -226,13 +233,22 @@ void motor_status(motor_status_t *motor_status, motor_command_t *motor_cmd) {
 				+ ((return_data[12] << 16) & 0xFF0000)
 				+ ((return_data[13] << 24) & 0xFF000000);
 
-		motor_status->present_temperature = dynamixel2_read_present_temperature(
-				motor_status->id);
-
-		motor_status->control_mode_st = dynamixel2_getOperatingMode(
-				motor_status->id);
-		motor_status->Hardware_error_status = dynamixel2_hardware_error(
-				motor_status->id);
+		static uint8_t read_cycle = 0;
+		switch (read_cycle) {
+		case 0:
+			motor_status->present_temperature =
+					dynamixel2_read_present_temperature(motor_status->id);
+			break;
+		case 1:
+			motor_status->control_mode_st = dynamixel2_getOperatingMode(
+					motor_status->id);
+			break;
+		case 2:
+			motor_status->Hardware_error_status = dynamixel2_hardware_error(
+					motor_status->id);
+			break;
+		}
+		read_cycle = (read_cycle + 1) % 3;
 		error_count = 0;
 
 	}
@@ -247,11 +263,16 @@ uint8_t motor_try_reconnect(motor_command_t *motor_cmd,
 	}
 	last_reconnect_attempt = now;
 	term_printf("[SAF-004] Attempting motor reconnection...\r\n");
+	HAL_GPIO_WritePin(GPIOC, GPIO_PIN_8, GPIO_PIN_SET);
+
 	if (dynamixel2_ping(motor_status->id)) {
 		term_printf("[SAF-004] Motor found ! Reinitializing...\r\n");
 		error_count = 0;
 		motor_status->state = MOTOR_STATE_INIT;
 		motor_init(motor_status->id, motor_cmd, motor_status);
+		motor_cmd->torque_enabled = 0;
+		dynamixel2_set_torque_enable(motor_cmd->id, 0);
+
 		return 1;
 	}
 	term_printf("[SAF-004] Motor not responding.\r\n");

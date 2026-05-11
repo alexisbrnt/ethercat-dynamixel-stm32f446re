@@ -40,6 +40,7 @@ motor_command_t motor_cmd1;
 motor_status_t motor_status1;
 SemaphoreHandle_t mutex_motor;
 DMA_HandleTypeDef hdma_usart1_rx;
+
 extern uint8_t rec_buf1[];
 
 static esc_cfg_t config = { .user_arg = "/dev/lan9252", .use_interrupt = 0,
@@ -83,24 +84,21 @@ void SystemClock_Config(void);
 void MX_DMA_Init(void);
 
 void cb_get_inputs() {
-	if (xSemaphoreTake(mutex_motor, pdMS_TO_TICKS(1)) == pdTRUE) {
-		Obj.ID_TX = motor_status1.id;
-		Obj.state = (uint8_t) motor_status1.state;
-		Obj.present_position = motor_status1.present_position;
-		Obj.present_velocity = motor_status1.present_velocity;
-		Obj.present_current = motor_status1.present_current;
-		Obj.present_temperature = motor_status1.present_temperature;
-		Obj.baudrate = motor_status1.baudrate;
-		Obj.operating_mode = motor_status1.control_mode_st;
-		Obj.Max_pos_lim = motor_status1.Max_pos_lim;
-		Obj.Min_pos_lim = motor_status1.Min_pos_lim;
-		Obj.Velocity_lim = motor_status1.Velocity_lim;
-		Obj.Current_lim = motor_status1.Current_lim;
-		Obj.Hardware_error_status = motor_status1.Hardware_error_status;
-		Obj.Moving = motor_status1.Moving;
-		Obj.torque_status = motor_status1.torque_status;
-		xSemaphoreGive(mutex_motor);
-	}
+	Obj.ID_TX = motor_status1.id;
+	Obj.state = (uint8_t) motor_status1.state;
+	Obj.present_position = motor_status1.present_position;
+	Obj.present_velocity = motor_status1.present_velocity;
+	Obj.present_current = motor_status1.present_current;
+	Obj.present_temperature = motor_status1.present_temperature;
+	Obj.baudrate = motor_status1.baudrate;
+	Obj.operating_mode = motor_status1.control_mode_st;
+	Obj.Max_pos_lim = motor_status1.Max_pos_lim;
+	Obj.Min_pos_lim = motor_status1.Min_pos_lim;
+	Obj.Velocity_lim = motor_status1.Velocity_lim;
+	Obj.Current_lim = motor_status1.Current_lim;
+	Obj.Hardware_error_status = motor_status1.Hardware_error_status;
+	Obj.Moving = motor_status1.Moving;
+	Obj.torque_status = motor_status1.torque_status;
 }
 
 void cb_set_outputs() {
@@ -156,7 +154,6 @@ static void task_motor_cmd(void *pvParameters) {
 }
 
 static void task_motor_status(void *pvParameters) {
-
 	while (!ecat_operational) {
 		vTaskDelay(pdMS_TO_TICKS(50));
 	}
@@ -165,13 +162,22 @@ static void task_motor_status(void *pvParameters) {
 		if (xSemaphoreTake(mutex_motor, pdMS_TO_TICKS(5))) {
 			if (!motor_check_master_timeout(&motor_status1, &motor_cmd1)) {
 				motor_status(&motor_status1, &motor_cmd1);
-
 			}
-
 			xSemaphoreGive(mutex_motor);
 		}
+
 		vTaskDelay(pdMS_TO_TICKS(5));
 	}
+}
+
+#define RELAY_PIN   GPIO_PIN_8
+#define RELAY_PORT  GPIOC
+
+void RELAY_On(void) {
+	HAL_GPIO_WritePin(RELAY_PORT, RELAY_PIN, GPIO_PIN_SET);
+}
+void RELAY_Off(void) {
+	HAL_GPIO_WritePin(RELAY_PORT, RELAY_PIN, GPIO_PIN_RESET);
 }
 
 int main(void) {
@@ -183,6 +189,7 @@ int main(void) {
 	/* MCU Configuration--------------------------------------------------------*/
 
 	/* Reset of all peripherals, Initializes the Flash interface and the Systick. */
+
 	HAL_Init();
 
 	/* USER CODE BEGIN Init */
@@ -199,6 +206,7 @@ int main(void) {
 	/* Initialize all configured peripherals */
 	MX_GPIO_Init();
 	MX_DMA_Init();
+	HAL_GPIO_WritePin(GPIOC, GPIO_PIN_8, GPIO_PIN_SET);
 	MX_USART1_UART_Init();
 	MX_USART2_UART_Init();
 	dynamixel2_dma_init();
@@ -219,15 +227,14 @@ int main(void) {
 	/* USER CODE BEGIN WHILE */
 #else
 
-	while (1) {
-		HAL_GPIO_WritePin(GPIOC, GPIO_PIN_8, GPIO_PIN_SET);
-		HAL_Delay(3000);  // ← laisser le moteur booter
-		dynamixel2_clear_receive_buffer();  // ← vider le buffer
-		term_printf("ON:  %u\r\n", dynamixel2_ping(ID_1));
+	RELAY_Off();
 
-		HAL_GPIO_WritePin(GPIOC, GPIO_PIN_8, GPIO_PIN_RESET);
-		HAL_Delay(2000);
-		term_printf("OFF: %u\r\n", dynamixel2_ping(ID_1));
+	while (1) {
+		RELAY_On();
+		HAL_Delay(1000); /* charge ON pendant 1s */
+
+		RELAY_Off();
+		HAL_Delay(1000); /* charge OFF pendant 1s */
 	}
 
 #endif

@@ -57,7 +57,8 @@ typedef struct{
 
 } motor_status_t;
 
-
+extern motor_command_t motor_cmd_pending;
+extern volatile uint8_t motor_cmd_pending_flag;
 
 void motor_init(uint8_t id, motor_command_t *motor_cmd, motor_status_t *motor_status);
 void motor_command(motor_command_t *motor_cmd, motor_status_t *motor_status);

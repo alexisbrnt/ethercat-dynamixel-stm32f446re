@@ -56,6 +56,7 @@ class MainWindow(QMainWindow):
         self.setMinimumSize(1000, 650)
 
         self._emergency_active = False
+        self._previous_state = -1
 
         self.ec_thread = EthercatThread(ifname)
         self.ec_thread.status_received.connect(self.update_status)
@@ -360,6 +361,17 @@ class MainWindow(QMainWindow):
             self.state_value.setText(
                 self.STATE_LABELS.get(raw_state, f"UNKNOWN ({raw_state})")
             )
+            if self._previous_state != 4 and raw_state == 4:
+                self.torque_switch.blockSignals(True)
+                self.torque_switch.setChecked(False)
+                self.torque_switch.blockSignals(False)
+                self.target_position_slider.blockSignals(True)
+                self.target_position_slider.setValue(0)
+                self.target_position_slider.blockSignals(False)
+                self.send_command()  # envoie torque=0, position=0
+                self.statusBar().showMessage("Motor disconnected — torque disabled")
+
+            self._previous_state = raw_state
 
             raw_mode = int(status.get("operating_mode", 0))
             self.operating_mode_value.setText(
@@ -427,12 +439,8 @@ class MainWindow(QMainWindow):
             self.target_current_slider.setEnabled(
                 can_control and mode == 0 and not in_gripper and not in_off
             )
-            self.reset_current_button.setEnabled(
-                can_control and not in_gripper and not in_off
-            )
-            self.reset_velocity_button.setEnabled(
-                can_control and not in_gripper and not in_off
-            )
+            self.reset_current_button.setEnabled(can_control and not in_gripper)
+            self.reset_velocity_button.setEnabled(can_control and not in_gripper)
             self.control_mode_combo.setEnabled(can_control and not in_gripper)
             self.torque_switch.setEnabled(can_control)
             self.led_switch.setEnabled(can_control)
