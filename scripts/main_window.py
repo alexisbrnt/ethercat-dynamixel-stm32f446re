@@ -31,6 +31,8 @@ class MainWindow(QMainWindow):
         5: "OFF",
         6: "SW_EMERGENCY_STOP",
         7: "GRIPPER_MODE",
+        8: "HW_EMERGENCY_STOP",
+        9: "COMM_LOSS",
     }
 
     OPERATING_MODE_LABELS = {
@@ -253,6 +255,41 @@ class MainWindow(QMainWindow):
         hi = self.target_current_slider.maximum()
         self.current_label.setText(str(value))
 
+    def _apply_safe_ui_state(self):
+        for w in (
+            self.torque_switch,
+            self.target_velocity_slider,
+            self.target_position_slider,
+            self.target_current_slider,
+        ):
+            w.blockSignals(True)
+
+        self.torque_switch.setChecked(False)
+        self.target_velocity_slider.setValue(0)
+        self.target_current_slider.setValue(0)
+
+        for w in (
+            self.torque_switch,
+            self.target_velocity_slider,
+            self.target_position_slider,
+            self.target_current_slider,
+        ):
+            w.blockSignals(False)
+        self.send_command()
+
+    def on_comm_lost(self):
+        self._apply_safe_ui_state()
+        self.statusBar().showMessage("EtherCAT communication lost - motor disabled")
+        self.state_value.setText("COMM_LOSS")
+        print("[IHM] Communication lost - UI reset to safe state")
+
+    def on_comm_restored(self):
+        self._apply_safe_ui_state()
+        self.statusBar().showMessage(
+            "EtherCAT  restored - torque disabled, re-enable manually"
+        )
+        print("[IHM] Communication restored - safe command sent")
+
     # -------------------- build & send command --------------------
     def _build_command(self, torque_override=None, led_override=None) -> dict:
         mode = self.control_mode_combo.currentData()
@@ -362,13 +399,7 @@ class MainWindow(QMainWindow):
                 self.STATE_LABELS.get(raw_state, f"UNKNOWN ({raw_state})")
             )
             if self._previous_state != 4 and raw_state == 4:
-                self.torque_switch.blockSignals(True)
-                self.torque_switch.setChecked(False)
-                self.torque_switch.blockSignals(False)
-                self.target_position_slider.blockSignals(True)
-                self.target_position_slider.setValue(0)
-                self.target_position_slider.blockSignals(False)
-                self.send_command()  # envoie torque=0, position=0
+                self._apply_safe_ui_state()
                 self.statusBar().showMessage("Motor disconnected — torque disabled")
 
             self._previous_state = raw_state

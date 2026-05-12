@@ -66,7 +66,7 @@ void motor_status(motor_status_t *motor_status,motor_command_t *motor_cmd);
 uint8_t motor_try_reconnect(motor_command_t *motor_cmd, motor_status_t *motor_status);
 void motor_update_master_watchdog(void);
 uint8_t motor_check_master_timeout(motor_status_t *motor_status, motor_command_t *motor_cmd);
-
+uint8_t motor_master_timed_out(void);
 void motor_LED(motor_command_t *motor_cmd, uint8_t led_state);
 void motor_set_target_position(motor_command_t *motor_cmd, int32_t position);
 void motor_set_control_mode(motor_command_t *motor_cmd, int8_t control);

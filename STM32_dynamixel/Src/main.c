@@ -29,6 +29,7 @@
 #include "ECAT/soes/ecat_slv.h"
 #include "ECAT/soes/esc.h"
 #include "ECAT/soes-esi/utypes.h"
+#include "motor_sm.h"
 
 #define TEST	0
 /* USER CODE END Includes */
@@ -38,6 +39,7 @@
 _Objects Obj;
 motor_command_t motor_cmd1;
 motor_status_t motor_status1;
+motor_context_t motor_ctx1;
 SemaphoreHandle_t mutex_motor;
 DMA_HandleTypeDef hdma_usart1_rx;
 
@@ -103,16 +105,21 @@ void cb_get_inputs() {
 
 void cb_set_outputs() {
 	motor_update_master_watchdog();
-
+	if (motor_ctx1.current_state == &state_init)
+		return;
 	motor_cmd1.id = Obj.ID_RX;
 	motor_cmd1.control_mode = Obj.control_mode;
 	motor_cmd1.torque_enabled = Obj.torque_enabled;
 	motor_cmd1.LED_state = Obj.LED_STATE;
-	motor_cmd1.target_position = Obj.goal_position;
-	motor_cmd1.target_velocity = Obj.target_velocity;
-	motor_cmd1.target_current = Obj.target_current;
 	motor_cmd1.reboot = Obj.Reboot;
 	motor_cmd1.emergency_stop = Obj.Emergency_stop;
+
+	if (!motor_ctx1.post_comm_loss) {
+		motor_cmd1.target_position = Obj.goal_position;
+		motor_cmd1.target_velocity = Obj.target_velocity;
+		motor_cmd1.target_current = Obj.target_current;
+	}
+
 }
 /* USER CODE END 0 */
 
@@ -140,32 +147,47 @@ static void task_EtherCAT(void *pvParameters) {
 	}
 }
 
-static void task_motor_cmd(void *pvParameters) {
-	while (!ecat_operational) {
-		vTaskDelay(pdMS_TO_TICKS(50));
-	}
-	for (;;) {
-		if (xSemaphoreTake(mutex_motor, pdMS_TO_TICKS(200))) {
-			motor_command(&motor_cmd1, &motor_status1);
-			xSemaphoreGive(mutex_motor);
-		}
-		vTaskDelay(pdMS_TO_TICKS(5));
-	}
-}
+//static void task_motor_cmd(void *pvParameters) {
+//	while (!ecat_operational) {
+//		vTaskDelay(pdMS_TO_TICKS(50));
+//	}
+//	for (;;) {
+//		if (xSemaphoreTake(mutex_motor, pdMS_TO_TICKS(200))) {
+//			motor_command(&motor_cmd1, &motor_status1);
+//			xSemaphoreGive(mutex_motor);
+//		}
+//		vTaskDelay(pdMS_TO_TICKS(5));
+//	}
+//}
+//
+//static void task_motor_status(void *pvParameters) {
+//	while (!ecat_operational) {
+//		vTaskDelay(pdMS_TO_TICKS(50));
+//	}
+//	motor_update_master_watchdog();
+//	for (;;) {
+//		if (xSemaphoreTake(mutex_motor, pdMS_TO_TICKS(5))) {
+//			if (!motor_check_master_timeout(&motor_status1, &motor_cmd1)) {
+//				motor_status(&motor_status1, &motor_cmd1);
+//			}
+//			xSemaphoreGive(mutex_motor);
+//		}
+//
+//		vTaskDelay(pdMS_TO_TICKS(5));
+//	}
+//}
 
-static void task_motor_status(void *pvParameters) {
+static void task_motor(void *pvParameters) {
 	while (!ecat_operational) {
 		vTaskDelay(pdMS_TO_TICKS(50));
 	}
 	motor_update_master_watchdog();
+
 	for (;;) {
-		if (xSemaphoreTake(mutex_motor, pdMS_TO_TICKS(5))) {
-			if (!motor_check_master_timeout(&motor_status1, &motor_cmd1)) {
-				motor_status(&motor_status1, &motor_cmd1);
-			}
+		if (xSemaphoreTake(mutex_motor, pdMS_TO_TICKS(10))) {
+			motor_sm_update(&motor_ctx1);
 			xSemaphoreGive(mutex_motor);
 		}
-
 		vTaskDelay(pdMS_TO_TICKS(5));
 	}
 }
@@ -214,14 +236,16 @@ int main(void) {
 	term_printf("\n\r===== Boot =====\r\n");
 	ecat_slv_init(&config);
 
-	motor_init(ID_1, &motor_cmd1, &motor_status1);
+	//motor_init(ID_1, &motor_cmd1, &motor_status1);
+	motor_sm_init(&motor_ctx1, &motor_cmd1, &motor_status1, ID_1);
 #if TEST == 0
 	/* USER CODE END 2 */
 	mutex_motor = xSemaphoreCreateMutex();
 	osKernelInitialize();
 	xTaskCreate(task_EtherCAT, "ECAT", 1024, NULL, 32, NULL);
-	xTaskCreate(task_motor_cmd, "MOT_CMD", 1024, NULL, 24, NULL);
-	xTaskCreate(task_motor_status, "MOT_RD", 1024, NULL, 20, NULL);
+//	xTaskCreate(task_motor_cmd, "MOT_CMD", 1024, NULL, 24, NULL);
+//	xTaskCreate(task_motor_status, "MOT_RD", 1024, NULL, 20, NULL);
+	xTaskCreate(task_motor, "MOTOR", 1024, NULL, 22, NULL);
 
 	osKernelStart();
 	/* USER CODE BEGIN WHILE */

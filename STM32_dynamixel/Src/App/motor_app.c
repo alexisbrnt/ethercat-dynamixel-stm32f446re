@@ -174,8 +174,7 @@ void motor_command(motor_command_t *motor_cmd, motor_status_t *motor_status) {
 void motor_status(motor_status_t *motor_status, motor_command_t *motor_cmd) {
 	if (motor_cmd->emergency_stop == 1) {
 		motor_status->state = MOTOR_SW_EMERGENCY_STOP;
-	}
-	else if (motor_status->state == MOTOR_STATE_ERROR){
+	} else if (motor_status->state == MOTOR_STATE_ERROR) {
 		return;
 	}
 
@@ -193,8 +192,8 @@ void motor_status(motor_status_t *motor_status, motor_command_t *motor_cmd) {
 			motor_status->control_mode_st = 0;
 		}
 
-	} else if (motor_status->present_temperature > 70 || motor_status->Hardware_error_status != 0
-			) {
+	} else if (motor_status->present_temperature > 70
+			|| motor_status->Hardware_error_status != 0) {
 		motor_status->state = MOTOR_HW_EMERGENCY_STOP;
 		error_count = 0;
 		term_printf("[SAF-001] Autonomous Emergency Stop\n\r");
@@ -279,6 +278,13 @@ uint8_t motor_try_reconnect(motor_command_t *motor_cmd,
 	return 0;
 
 }
+
+uint8_t motor_master_timed_out(void)
+{
+    return (HAL_GetTick() - last_master_rx_tick) > COMM_TIMEOUT_MS;
+}
+
+
 void motor_update_master_watchdog(void) {
 	last_master_rx_tick = HAL_GetTick();
 }

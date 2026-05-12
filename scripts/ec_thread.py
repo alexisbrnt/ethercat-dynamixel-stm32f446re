@@ -4,12 +4,26 @@ import time
 
 import pysoem
 
+_SAFE_COMMAND = {
+    "id": 1,
+    "control_mode": 3,
+    "torque_enabled": 0,
+    "LED_state": 0,
+    "target_position": 0,
+    "target_velocity": 0,
+    "target_current": 0,
+    "reboot": 0,
+    "emergency_stop": 0,
+}
+
 
 # ===================== EtherCAT Thread =====================
 class EthercatThread(QtCore.QThread):
     status_received = QtCore.pyqtSignal(dict)
     error_occurred = QtCore.pyqtSignal(str)
     connected = QtCore.pyqtSignal()
+    comm_loss = QtCore.pyqtSignal()
+    comm_restored = QtCore.pyqtSignal()
 
     def __init__(self, ifname: str = "enxa453eed090bc"):
         super().__init__()
@@ -17,17 +31,8 @@ class EthercatThread(QtCore.QThread):
         self.running = True
 
         self._command_lock = threading.Lock()
-        self._latest_command = {
-            "id": 1,
-            "control_mode": 3,
-            "torque_enabled": 0,
-            "LED_state": 0,
-            "target_position": 0,
-            "target_velocity": 0,
-            "target_current": 0,
-            "reboot": 0,
-            "emergency_stop": 0,
-        }
+        self._latest_command = dict(_SAFE_COMMAND)
+        self._comm_was_lost = False
 
         self.master = None
         self.slave = None
@@ -36,6 +41,10 @@ class EthercatThread(QtCore.QThread):
     def update_command(self, cmd: dict):
         with self._command_lock:
             self._latest_command = cmd
+
+    def reset_to_safe(self):
+        with self._command_lock:
+            self._latest_command = dict(_SAFE_COMMAND)
 
     # ---------- EtherCAT init ----------
     def _init_ethercat(self):
@@ -156,6 +165,7 @@ class EthercatThread(QtCore.QThread):
 
         cycle_s = 0.002
         publish_divider = 0
+        consecutive_errors = 0
         while self.running:
             t0 = time.perf_counter()
             try:
@@ -164,7 +174,24 @@ class EthercatThread(QtCore.QThread):
 
                 self.slave.output = self._pack_outputs(cmd)
                 self.master.send_processdata()
-                self.master.receive_processdata(2000)
+                wkc = self.master.receive_processdata(2000)
+                if wkc <= 0:
+                    consecutive_errors += 1
+                    if consecutive_errors == 5 and not self._comm_was_lost:
+                        self._comm_was_lost = True
+                        self.reset_to_safe()
+                        self.comm_loss.emit()
+                        print("[EC] Communication lost - safe command applied")
+                else:
+                    if self._comm_was_lost:
+                        self._comm_was_lost = False
+                        consecutive_errors = 0
+                        self.reset_to_safe()
+                        self.comm_restored.emit()
+                        print("[EC] Communication restored - safe command applied")
+                    else:
+                        consecutive_errors = 0
+
                 publish_divider += 1
                 if publish_divider >= 25:
                     publish_divider = 0
