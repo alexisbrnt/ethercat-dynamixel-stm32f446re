@@ -20,6 +20,8 @@ struct motor_context{
 	uint32_t				last_reconnect_ms;
 	uint8_t					read_cycle;
 	uint8_t					post_comm_loss;
+	uint8_t					blink_counter;
+	uint8_t 				blink_led_state;
 };
 
 void motor_sm_init(motor_context_t *ctx, motor_command_t *cmd, motor_status_t *status,uint8_t motor_id);

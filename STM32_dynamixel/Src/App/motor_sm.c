@@ -257,6 +257,7 @@ static void state_off_update(motor_context_t *ctx) {
 		motor_transition_to(ctx, &state_sw_emergency);
 		return;
 	}
+	dynamixel2_set_LED(ctx->cmd->id, ctx->cmd->LED_state);
 
 	if (ctx->cmd->torque_enabled) {
 		motor_transition_to(ctx, &state_operational);
@@ -299,17 +300,28 @@ const motor_sm_state_t state_error = { .enter = state_error_enter, .update =
 static void state_sw_emergency_enter(motor_context_t *ctx) {
 	ctx->status->state = MOTOR_SW_EMERGENCY_STOP;
 	ctx->cmd->torque_enabled = 0;
+	ctx->blink_counter = 0;
+	ctx->blink_led_state = 1;
+	dynamixel2_set_LED(ctx->cmd->id, 1);
 	dynamixel2_set_torque_enable(ctx->cmd->id, 0);
 	ctx->post_comm_loss = 1;
 	term_printf("[SAF-002] MAster initiated Emergency STOP\r\n");
 }
 
 static void state_sw_emergency_update(motor_context_t *ctx) {
+	if (++ctx->blink_counter >= 10) {
+		ctx->blink_counter = 0;
+		ctx->blink_led_state = !ctx->blink_led_state;  // ← variable dédiée
+		dynamixel2_set_LED(ctx->cmd->id, ctx->blink_led_state);
+	}
 	if (!ctx->cmd->emergency_stop) {
 		//dynamixel2_reboot(ctx->status->id);
 		term_printf("[SAF-007] Motor reboot after emergency\r\n");
 		//HAL_Delay(500);
+		ctx->blink_led_state = 0;
+		ctx->blink_counter = 0;
 		motor_transition_to(ctx, &state_operational);
+
 	}
 }
 

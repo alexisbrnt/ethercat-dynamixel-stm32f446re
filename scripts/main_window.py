@@ -60,12 +60,19 @@ class MainWindow(QMainWindow):
         self._emergency_active = False
         self._previous_state = -1
 
+        self._limits_shown = False
+
         self.ec_thread = EthercatThread(ifname)
         self.ec_thread.status_received.connect(self.update_status)
         self.ec_thread.error_occurred.connect(self.on_ec_error)
         self.ec_thread.connected.connect(
             lambda: self.statusBar().showMessage("EtherCAT connected")
         )
+
+        self.ec_thread.comm_loss.connect(self.on_comm_lost)
+        self.ec_thread.comm_restored.connect(self.on_comm_restored)
+        self.ec_thread.reconnecting.connect(self.on_reconnecting)
+
         self.ec_thread.start()
 
         self.init_ui()
@@ -266,7 +273,9 @@ class MainWindow(QMainWindow):
 
         self.torque_switch.setChecked(False)
         self.target_velocity_slider.setValue(0)
+        self.velocity_label.setText("0")
         self.target_current_slider.setValue(0)
+        self.current_label.setText("0")
 
         for w in (
             self.torque_switch,
@@ -279,9 +288,13 @@ class MainWindow(QMainWindow):
 
     def on_comm_lost(self):
         self._apply_safe_ui_state()
+        self._limits_shown = False
         self.statusBar().showMessage("EtherCAT communication lost - motor disabled")
         self.state_value.setText("COMM_LOSS")
         print("[IHM] Communication lost - UI reset to safe state")
+
+    def on_reconnecting(self, attempt: int):
+        self.statusBar().showMessage(f"Reconnecting... attempt #{attempt}")
 
     def on_comm_restored(self):
         self._apply_safe_ui_state()
@@ -398,9 +411,26 @@ class MainWindow(QMainWindow):
             self.state_value.setText(
                 self.STATE_LABELS.get(raw_state, f"UNKNOWN ({raw_state})")
             )
+
+            torque_must_be_off = raw_state in (
+                4,  # ERROR
+                6,  # SW_EMERGENCY_STOP
+                8,  # HW_EMERGENCY_STOP
+                9,  # COMM_LOSS
+            )
+            if torque_must_be_off and self.torque_switch.isChecked():
+                self.torque_switch.blockSignals(True)
+                self.torque_switch.setChecked(False)
+                self.torque_switch.blockSignals(False)
+
             if self._previous_state != 4 and raw_state == 4:
                 self._apply_safe_ui_state()
                 self.statusBar().showMessage("Motor disconnected — torque disabled")
+            elif self._previous_state == 9 and raw_state != 9:
+                self._apply_safe_ui_state()
+                self.statusBar().showMessage(
+                    "EtherCAT restored - torque disabled, re-enable manually"
+                )
 
             self._previous_state = raw_state
 
@@ -433,6 +463,7 @@ class MainWindow(QMainWindow):
                 max_lim != self.target_position_slider.maximum()
                 or min_lim != self.target_position_slider.minimum()
             ):
+
                 current_val = self.target_position_slider.value()
                 self.target_position_slider.setMinimum(min_lim)
                 self.target_position_slider.setMaximum(max_lim)
@@ -441,9 +472,11 @@ class MainWindow(QMainWindow):
                     max(min_lim, min(max_lim, current_val))
                 )
                 self._LIMITS_INITIALIZED = True
-                self.statusBar().showMessage(
-                    f"EtherCAT connected — position limits set: [{min_lim}, {max_lim}]"
-                )
+                if not self._limits_shown:
+                    self._limits_shown = True
+                    self.statusBar().showMessage(
+                        f"EtherCAT connected — position limits set: [{min_lim}, {max_lim}]"
+                    )
 
             if cur_lim != self.target_current_slider.maximum():
                 current_val = self.target_current_slider.maximum()

@@ -15,6 +15,11 @@ _SAFE_COMMAND = {
     "reboot": 0,
     "emergency_stop": 0,
 }
+_WKC_ERROR_THRESHOLD = 10
+
+_BACKOFF_INITIAL = 1.0
+_BACKOFF_FACTOR = 2.0
+_BACKOFF_MAX = 30.0
 
 
 # ===================== EtherCAT Thread =====================
@@ -24,6 +29,7 @@ class EthercatThread(QtCore.QThread):
     connected = QtCore.pyqtSignal()
     comm_loss = QtCore.pyqtSignal()
     comm_restored = QtCore.pyqtSignal()
+    reconnecting = QtCore.pyqtSignal(int)
 
     def __init__(self, ifname: str = "enxa453eed090bc"):
         super().__init__()
@@ -45,6 +51,18 @@ class EthercatThread(QtCore.QThread):
     def reset_to_safe(self):
         with self._command_lock:
             self._latest_command = dict(_SAFE_COMMAND)
+
+    def _close_master(self):
+        try:
+            if self.master is not None:
+                self.master.state = pysoem.INIT_STATE
+                self.master.write_state()
+                self.master.close()
+        except Exception:
+            pass
+        finally:
+            self.master = None
+            self.slave = None
 
     # ---------- EtherCAT init ----------
     def _init_ethercat(self):
@@ -92,6 +110,7 @@ class EthercatThread(QtCore.QThread):
             if state == pysoem.OP_STATE:
                 break
             time.sleep(0.001)
+
         else:
             self.master.read_state()
             sl = self.master.slaves[0]
@@ -156,65 +175,95 @@ class EthercatThread(QtCore.QThread):
 
     # ---------- main loop ----------
     def run(self):
-        try:
-            self._init_ethercat()
-            self.connected.emit()
-        except Exception as e:
-            self.error_occurred.emit(f"EtherCAT init failed: {e}")
-            return
-
-        cycle_s = 0.002
-        publish_divider = 0
-        consecutive_errors = 0
+        backoff = _BACKOFF_INITIAL
+        attempt = 0
+        first_connect = True
         while self.running:
-            t0 = time.perf_counter()
-            try:
-                with self._command_lock:
-                    cmd = dict(self._latest_command)
+            self._close_master()
+            self.reset_to_safe()
 
-                self.slave.output = self._pack_outputs(cmd)
-                self.master.send_processdata()
-                wkc = self.master.receive_processdata(2000)
-                if wkc <= 0:
-                    consecutive_errors += 1
-                    if consecutive_errors == 5 and not self._comm_was_lost:
-                        self._comm_was_lost = True
-                        self.reset_to_safe()
-                        self.comm_loss.emit()
-                        print("[EC] Communication lost - safe command applied")
-                else:
-                    if self._comm_was_lost:
-                        self._comm_was_lost = False
-                        consecutive_errors = 0
-                        self.reset_to_safe()
-                        self.comm_restored.emit()
-                        print("[EC] Communication restored - safe command applied")
+            attempt += 1
+            if not first_connect:
+                self.reconnecting.emit(attempt)
+                print(
+                    f"[EC] Reconnection attempt #{attempt}"
+                    f"- next in {backoff:0f}s if failure"
+                )
+            try:
+                self._init_ethercat()
+            except Exception as e:
+                msg = f"Connection failed (attempt #{attempt}):{e}"
+                print(f"[EC] {msg}")
+                self.error_occurred.emit(msg)
+                self._sleep_interruptible(backoff)
+                backoff = min(backoff * _BACKOFF_FACTOR, _BACKOFF_MAX)
+                continue
+            backoff = _BACKOFF_INITIAL
+            attempt = 0
+
+            if first_connect:
+                first_connect = False
+                self.connected.emit()
+            else:
+                self.comm_restored.emit()
+                print("[EC] Reconnected - safe command active")
+
+            consecutive_errors = 0
+            publish_divider = 0
+
+            while self.running:
+                t0 = time.perf_counter()
+
+                if self.slave is None:
+                    break
+
+                try:
+                    with self._command_lock:
+                        cmd = dict(self._latest_command)
+                    self.slave.output = self._pack_outputs(cmd)
+                    self.master.send_processdata()
+                    wkc = self.master.receive_processdata(2000)
+
+                    if wkc <= 0:
+                        consecutive_errors += 1
+                        if consecutive_errors == _WKC_ERROR_THRESHOLD:
+                            print(f"[EC] WKC = {wkc}x{consecutive_errors} - link lost")
+                            self.reset_to_safe()
+                            self.comm_loss.emit()
+                            break
                     else:
                         consecutive_errors = 0
+                        publish_divider += 1
+                        if publish_divider >= 25:
+                            publish_divider = 0
+                            try:
+                                status = self._unpack_inputs(bytes(self.slave.input))
+                                self.status_received.emit(status)
+                            except Exception as e:
+                                self.error_occurred.emit(f"Unpack:{e}")
+                except Exception as e:
+                    consecutive_errors += 1
+                    self.error_occurred.emit(str(e))
+                    if consecutive_errors >= _WKC_ERROR_THRESHOLD:
+                        self.reset_to_safe()
+                        self.comm_loss.emit()
+                        break
+                elapsed = time.perf_counter() - t0
+                if (wait := 0.002 - elapsed) > 0:
+                    time.sleep(wait)
+            if self.running:
+                print(f"[EC] Waiting {backoff:.0f}s before reconnection...")
+                self._sleep_interruptible(backoff)
+                backoff = min(backoff * _BACKOFF_FACTOR, _BACKOFF_MAX)
 
-                publish_divider += 1
-                if publish_divider >= 25:
-                    publish_divider = 0
-                    inputs = bytes(self.slave.input)
-                    status = self._unpack_inputs(inputs)
-                    self.status_received.emit(status)
+        self._close_master()
+        print("[EC] Thread stopped")
 
-            except Exception as e:
-                self.error_occurred.emit(str(e))
-
-            dt = time.perf_counter() - t0
-            sleep_time = cycle_s - dt
-            if sleep_time > 0:
-                time.sleep(sleep_time)
+    def _sleep_interruptible(self, seconds: float):
+        deadline = time.perf_counter() + seconds
+        while self.running and time.perf_counter() < deadline:
+            time.sleep(0.1)
 
     def stop(self):
         self.running = False
-        self.wait(2000)
-
-        try:
-            if self.master is not None:
-                self.master.state = pysoem.INIT_STATE
-                self.master.write_state()
-                self.master.close()
-        except Exception:
-            pass
+        self.wait(3000)

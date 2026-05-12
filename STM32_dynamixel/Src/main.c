@@ -147,35 +147,7 @@ static void task_EtherCAT(void *pvParameters) {
 	}
 }
 
-//static void task_motor_cmd(void *pvParameters) {
-//	while (!ecat_operational) {
-//		vTaskDelay(pdMS_TO_TICKS(50));
-//	}
-//	for (;;) {
-//		if (xSemaphoreTake(mutex_motor, pdMS_TO_TICKS(200))) {
-//			motor_command(&motor_cmd1, &motor_status1);
-//			xSemaphoreGive(mutex_motor);
-//		}
-//		vTaskDelay(pdMS_TO_TICKS(5));
-//	}
-//}
-//
-//static void task_motor_status(void *pvParameters) {
-//	while (!ecat_operational) {
-//		vTaskDelay(pdMS_TO_TICKS(50));
-//	}
-//	motor_update_master_watchdog();
-//	for (;;) {
-//		if (xSemaphoreTake(mutex_motor, pdMS_TO_TICKS(5))) {
-//			if (!motor_check_master_timeout(&motor_status1, &motor_cmd1)) {
-//				motor_status(&motor_status1, &motor_cmd1);
-//			}
-//			xSemaphoreGive(mutex_motor);
-//		}
-//
-//		vTaskDelay(pdMS_TO_TICKS(5));
-//	}
-//}
+
 
 static void task_motor(void *pvParameters) {
 	while (!ecat_operational) {
@@ -243,8 +215,7 @@ int main(void) {
 	mutex_motor = xSemaphoreCreateMutex();
 	osKernelInitialize();
 	xTaskCreate(task_EtherCAT, "ECAT", 1024, NULL, 32, NULL);
-//	xTaskCreate(task_motor_cmd, "MOT_CMD", 1024, NULL, 24, NULL);
-//	xTaskCreate(task_motor_status, "MOT_RD", 1024, NULL, 20, NULL);
+
 	xTaskCreate(task_motor, "MOTOR", 1024, NULL, 22, NULL);
 
 	osKernelStart();
