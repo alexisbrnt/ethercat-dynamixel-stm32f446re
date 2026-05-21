@@ -19,6 +19,8 @@ from PyQt5.QtCore import Qt
 
 from ec_thread import EthercatThread
 
+iplink = "enxf8e43b4e91ea"
+
 
 # ===================== Main Window =====================
 class MainWindow(QMainWindow):
@@ -52,7 +54,7 @@ class MainWindow(QMainWindow):
         7: "4.5M",
     }
 
-    def __init__(self, ifname: str = "enxa453eed090bc"):
+    def __init__(self, ifname: str = iplink):
         super().__init__()
         self.setWindowTitle("Motor Master IHM")
         self.setMinimumSize(1000, 650)

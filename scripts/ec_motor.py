@@ -4,6 +4,8 @@ from PyQt5.QtWidgets import QApplication
 
 from main_window import MainWindow
 
+iplink = "enxf8e43b4e91ea"
+
 
 # ===================== Entry point =====================
 def main():
@@ -12,8 +14,8 @@ def main():
     parser = argparse.ArgumentParser(description="Motor IHM + EtherCAT")
     parser.add_argument(
         "--ifname",
-        default="enxa453eed090bc",
-        help="Network interface for EtherCAT (default: enxa453eed090bc)",
+        default=iplink,
+        help="Network interface for EtherCAT (default: iplink value)",
     )
     args = parser.parse_args()
 

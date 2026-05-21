@@ -22,6 +22,9 @@ _BACKOFF_FACTOR = 2.0
 _BACKOFF_MAX = 30.0
 
 
+iplink = "enxf8e43b4e91ea"
+
+
 # ===================== EtherCAT Thread =====================
 class EthercatThread(QtCore.QThread):
     status_received = QtCore.pyqtSignal(dict)
@@ -31,7 +34,7 @@ class EthercatThread(QtCore.QThread):
     comm_restored = QtCore.pyqtSignal()
     reconnecting = QtCore.pyqtSignal(int)
 
-    def __init__(self, ifname: str = "enxa453eed090bc"):
+    def __init__(self, ifname: str = iplink):
         super().__init__()
         self.ifname = ifname
         self.running = True
