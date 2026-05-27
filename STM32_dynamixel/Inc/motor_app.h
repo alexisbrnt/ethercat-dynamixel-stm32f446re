@@ -56,7 +56,6 @@ typedef struct{
 	uint8_t torque_status;
 
 } motor_status_t;
-
 extern motor_command_t motor_cmd_pending;
 extern volatile uint8_t motor_cmd_pending_flag;
 

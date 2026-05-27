@@ -206,11 +206,12 @@ int main(void) {
 	dynamixel2_dma_init();
 	/* USER CODE BEGIN 2 */
 	term_printf("\n\r===== Boot =====\r\n");
+#if TEST == 0
 	ecat_slv_init(&config);
 
 	//motor_init(ID_1, &motor_cmd1, &motor_status1);
 	motor_sm_init(&motor_ctx1, &motor_cmd1, &motor_status1, ID_1);
-#if TEST == 0
+
 	/* USER CODE END 2 */
 	mutex_motor = xSemaphoreCreateMutex();
 	osKernelInitialize();
@@ -226,9 +227,11 @@ int main(void) {
 
 	while (1) {
 		RELAY_On();
+		term_printf("\n\r\n\rALLUMÉ\n\r\n\r");
 		HAL_Delay(1000); /* charge ON pendant 1s */
 
 		RELAY_Off();
+		term_printf("\n\r\n\rÉTEINT\n\r\n\r");
 		HAL_Delay(1000); /* charge OFF pendant 1s */
 	}
 

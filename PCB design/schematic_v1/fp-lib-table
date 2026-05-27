@@ -1,0 +1,6 @@
+(fp_lib_table
+	(version 7)
+	(lib (name "Library") (type "KiCad") (uri "/home/alexis/Documents/HIT_internship/PCB design/libs/footprints.pretty/Library.pretty") (options "") (descr ""))
+	(lib (name "footprints") (type "KiCad") (uri "/home/alexis/Documents/HIT_internship/PCB design/libs/footprints.pretty/footprints.pretty") (options "") (descr ""))
+	(lib (name "footprints") (type "KiCad") (uri "/home/alexis/Documents/HIT_internship/PCB design/libs/footprints.pretty/footprints.pretty") (options "") (descr ""))
+)

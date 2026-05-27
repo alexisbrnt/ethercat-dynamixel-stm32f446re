@@ -66,6 +66,8 @@ extern "C" {
 void Error_Handler(void);
 
 /* USER CODE BEGIN EFP */
+void RELAY_Off(void) ;
+void RELAY_On(void);
 
 /* USER CODE END EFP */
 

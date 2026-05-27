@@ -8,8 +8,15 @@
 #define Init_MIN_limit		0
 #define HW_EMRG_CLEAR_TEMP	60u
 #define RECONNECT_PERIOD_MS 500u
+static uint32_t last_master_rx_tick = 0;
 
 #define With_GRIPPER		0
+
+uint8_t motor_master_timed_out(void)
+{
+    return (HAL_GetTick() - last_master_rx_tick) > COMM_TIMEOUT_MS;
+}
+
 
 void motor_transition_to(motor_context_t *ctx,
 		const motor_sm_state_t *new_state) {
@@ -275,7 +282,7 @@ static void state_error_enter(motor_context_t *ctx) {
 	ctx->status->present_temperature = 0;
 	ctx->status->control_mode_st = 0;
 	ctx->last_reconnect_ms = 0;
-	//RELAY_Off();
+	RELAY_Off();
 }
 
 static void state_error_update(motor_context_t *ctx) {
@@ -285,12 +292,13 @@ static void state_error_update(motor_context_t *ctx) {
 	ctx->last_reconnect_ms = now;
 	term_printf("[SAF-004] Attempting motor reconnection...\r\n");
 
-	//RELAY_On();
+	RELAY_On();
 	if (dynamixel2_ping(ctx->status->id)) {
 		term_printf("[SAF-004] Motor found ! Reinitializing...\r\n");
 		motor_transition_to(ctx, &state_init);
 	} else {
 		term_printf("[SAF-004] Motor not responding\r\n");
+		RELAY_Off();
 	}
 }
 
