@@ -25,7 +25,6 @@ struct motor_context{
 };
 
 
-uint8_t motor_master_timed_out(void);
 void motor_sm_init(motor_context_t *ctx, motor_command_t *cmd, motor_status_t *status,uint8_t motor_id);
 void motor_sm_update(motor_context_t *ctx);
 void motor_transition_to(motor_context_t *ctx, const motor_sm_state_t *new_state);

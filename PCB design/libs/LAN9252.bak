@@ -2,34 +2,39 @@
 	(version 20251024)
 	(generator "kicad_symbol_editor")
 	(generator_version "10.0")
-	(symbol "LAN9252_test"
+	(symbol "LAN9252"
+		(pin_names
+			(offset 1.016)
+		)
 		(exclude_from_sim no)
 		(in_bom yes)
 		(on_board yes)
 		(in_pos_files yes)
 		(duplicate_pin_numbers_are_jumpers no)
-		(property "Reference" "U1"
-			(at 48.26 19.1202 0)
+		(property "Reference" "IC"
+			(at -45.72 64.77 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
+				(justify left bottom)
 			)
 		)
 		(property "Value" "LAN9252"
-			(at 48.26 16.5802 0)
+			(at -45.72 -25.4 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
+				(justify left bottom)
 			)
 		)
-		(property "Footprint" "Package_DFN_QFN:QFN-64-1EP_9x9mm_P0.5mm_EP6x6mm"
-			(at 15.494 -6.858 0)
+		(property "Footprint" "footprints:LAN9252"
+			(at 0 0 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(hide yes)
@@ -37,10 +42,11 @@
 				(font
 					(size 1.27 1.27)
 				)
+				(justify bottom)
 			)
 		)
 		(property "Datasheet" ""
-			(at -3.81 -6.35 0)
+			(at 0 0 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(hide yes)
@@ -50,8 +56,8 @@
 				)
 			)
 		)
-		(property "Description" ""
-			(at -3.81 -6.35 0)
+		(property "Description" "Ethernet CTLR Single Chip 10Mbps/100Mbps 3.3V 64-Pin QFN EP T/R"
+			(at 0 0 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(hide yes)
@@ -59,1168 +65,1273 @@
 				(font
 					(size 1.27 1.27)
 				)
+				(justify bottom)
 			)
 		)
-		(symbol "LAN9252_test_1_1"
+		(property "MF" "Microchip Technology"
+			(at 0 0 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify bottom)
+			)
+		)
+		(property "Package" "None"
+			(at 0 0 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify bottom)
+			)
+		)
+		(property "Price" "None"
+			(at 0 0 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify bottom)
+			)
+		)
+		(property "SnapEDA_Link" "https://www.snapeda.com/parts/LAN9252/Microchip+Technology/view-part/?ref=snap"
+			(at 0 0 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify bottom)
+			)
+		)
+		(property "MP" "LAN9252"
+			(at 0 0 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify bottom)
+			)
+		)
+		(property "Availability" "Not in stock"
+			(at 0 0 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify bottom)
+			)
+		)
+		(property "Check_prices" "https://www.snapeda.com/parts/LAN9252/Microchip+Technology/view-part/?ref=eda"
+			(at 0 0 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify bottom)
+			)
+		)
+		(symbol "LAN9252_0_0"
 			(rectangle
-				(start -15.24 13.97)
-				(end 45.72 -26.67)
+				(start -45.72 -22.86)
+				(end 48.26 63.5)
 				(stroke
-					(width 0)
-					(type solid)
+					(width 0.254)
+					(type default)
 				)
 				(fill
 					(type background)
 				)
 			)
-			(pin input line
-				(at -17.78 12.7 0)
-				(length 2.54)
-				(name "0SCI"
+			(pin bidirectional line
+				(at -50.8 60.96 0)
+				(length 5.08)
+				(name "OSCI"
 					(effects
 						(font
-							(size 1.27 1.27)
+							(size 1.016 1.016)
 						)
 					)
 				)
 				(number "1"
 					(effects
 						(font
-							(size 1.27 1.27)
+							(size 1.016 1.016)
 						)
 					)
 				)
 			)
-			(pin output line
-				(at -17.78 10.16 0)
-				(length 2.54)
+			(pin bidirectional line
+				(at -50.8 58.42 0)
+				(length 5.08)
 				(name "OSCO"
 					(effects
 						(font
-							(size 1.27 1.27)
+							(size 1.016 1.016)
 						)
 					)
 				)
 				(number "2"
 					(effects
 						(font
-							(size 1.27 1.27)
+							(size 1.016 1.016)
 						)
 					)
 				)
 			)
-			(pin no_connect line
-				(at -17.78 7.62 0)
-				(length 2.54)
-				(name "OSCVDD12"
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-				(number "3"
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-			)
-			(pin power_in line
-				(at -17.78 5.08 0)
-				(length 2.54)
-				(name "OSCVSS"
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-				(number "4"
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-			)
-			(pin power_in line
-				(at -17.78 2.54 0)
-				(length 2.54)
-				(name "VD33"
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-				(number "5"
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-			)
-			(pin power_in line
-				(at -17.78 0 0)
-				(length 2.54)
-				(name "VDDCR"
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-				(number "6"
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-			)
-			(pin power_in line
-				(at -17.78 -2.54 0)
-				(length 2.54)
-				(name "REG_EN"
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-				(number "7"
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-			)
-			(pin input line
-				(at -17.78 -5.08 0)
-				(length 2.54)
-				(name "FXLOSEN"
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-				(number "8"
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-			)
-			(pin power_in line
-				(at -17.78 -7.62 0)
-				(length 2.54)
-				(name "GND"
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-				(number "9"
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-			)
-			(pin power_in line
-				(at -17.78 -10.16 0)
-				(length 2.54)
-				(name "GND"
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-				(number "10"
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-			)
-			(pin input line
-				(at -17.78 -12.7 0)
-				(length 2.54)
+			(pin bidirectional line
+				(at -50.8 35.56 0)
+				(length 5.08)
 				(name "RST#"
 					(effects
 						(font
-							(size 1.27 1.27)
+							(size 1.016 1.016)
 						)
 					)
 				)
 				(number "11"
 					(effects
 						(font
-							(size 1.27 1.27)
+							(size 1.016 1.016)
 						)
 					)
 				)
 			)
 			(pin bidirectional line
-				(at -17.78 -15.24 0)
-				(length 2.54)
-				(name "D2"
+				(at -50.8 33.02 0)
+				(length 5.08)
+				(name "D2/AD2/SOF/SIO2"
 					(effects
 						(font
-							(size 1.27 1.27)
+							(size 1.016 1.016)
 						)
 					)
 				)
 				(number "12"
 					(effects
 						(font
-							(size 1.27 1.27)
+							(size 1.016 1.016)
 						)
 					)
 				)
 			)
 			(pin bidirectional line
-				(at -17.78 -17.78 0)
-				(length 2.54)
-				(name "D1_SO"
+				(at -50.8 30.48 0)
+				(length 5.08)
+				(name "D1/AD1/EOF/SO/SIO1"
 					(effects
 						(font
-							(size 1.27 1.27)
+							(size 1.016 1.016)
 						)
 					)
 				)
 				(number "13"
 					(effects
 						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-			)
-			(pin power_in line
-				(at -17.78 -20.32 0)
-				(length 2.54)
-				(name "VDDIO"
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-				(number "14"
-					(effects
-						(font
-							(size 1.27 1.27)
+							(size 1.016 1.016)
 						)
 					)
 				)
 			)
 			(pin bidirectional line
-				(at -17.78 -22.86 0)
-				(length 2.54)
-				(name "D14"
+				(at -50.8 25.4 0)
+				(length 5.08)
+				(name "D14/AD14/DIGIO8/GPI8/GPO8/MII_TXD3/TX_SHIFT1"
 					(effects
 						(font
-							(size 1.27 1.27)
+							(size 1.016 1.016)
 						)
 					)
 				)
 				(number "15"
 					(effects
 						(font
-							(size 1.27 1.27)
+							(size 1.016 1.016)
 						)
 					)
 				)
 			)
 			(pin bidirectional line
-				(at -17.78 -25.4 0)
-				(length 2.54)
-				(name "D13"
+				(at -50.8 22.86 0)
+				(length 5.08)
+				(name "D13/AD13/DIGIO7/GPI7/GPO7/MII_TXD2/TX_SHIFT0"
 					(effects
 						(font
-							(size 1.27 1.27)
+							(size 1.016 1.016)
 						)
 					)
 				)
 				(number "16"
 					(effects
 						(font
-							(size 1.27 1.27)
+							(size 1.016 1.016)
 						)
 					)
 				)
 			)
 			(pin bidirectional line
-				(at -2.54 -29.21 90)
-				(length 2.54)
-				(name "D0_SI"
+				(at -50.8 20.32 0)
+				(length 5.08)
+				(name "D0/AD0/WD_STATE/SI/SIO0"
 					(effects
 						(font
-							(size 1.27 1.27)
+							(size 1.016 1.016)
 						)
 					)
 				)
 				(number "17"
 					(effects
 						(font
-							(size 1.27 1.27)
+							(size 1.016 1.016)
 						)
 					)
 				)
 			)
 			(pin bidirectional line
-				(at 0 -29.21 90)
-				(length 2.54)
-				(name "SYNC1"
+				(at -50.8 17.78 0)
+				(length 5.08)
+				(name "SYNC1/LATCH1"
 					(effects
 						(font
-							(size 1.27 1.27)
+							(size 1.016 1.016)
 						)
 					)
 				)
 				(number "18"
 					(effects
 						(font
-							(size 1.27 1.27)
+							(size 1.016 1.016)
 						)
 					)
 				)
 			)
 			(pin bidirectional line
-				(at 2.54 -29.21 90)
-				(length 2.54)
-				(name "D9_SCK"
+				(at -50.8 15.24 0)
+				(length 5.08)
+				(name "D9/AD9/LATCH_IN/SCK"
 					(effects
 						(font
-							(size 1.27 1.27)
+							(size 1.016 1.016)
 						)
 					)
 				)
 				(number "19"
 					(effects
 						(font
-							(size 1.27 1.27)
+							(size 1.016 1.016)
 						)
 					)
 				)
 			)
-			(pin power_in line
-				(at 5.08 -29.21 90)
-				(length 2.54)
-				(name "VDDIO"
+			(pin bidirectional line
+				(at -50.8 12.7 0)
+				(length 5.08)
+				(name "VDDIO1"
 					(effects
 						(font
-							(size 1.27 1.27)
+							(size 1.016 1.016)
 						)
 					)
 				)
 				(number "20"
 					(effects
 						(font
-							(size 1.27 1.27)
+							(size 1.016 1.016)
 						)
 					)
 				)
 			)
 			(pin bidirectional line
-				(at 7.62 -29.21 90)
-				(length 2.54)
-				(name "D12"
+				(at -50.8 10.16 0)
+				(length 5.08)
+				(name "D12/AD12/DIGIO6/GIP6/GPO6/MII_TXD1"
 					(effects
 						(font
-							(size 1.27 1.27)
+							(size 1.016 1.016)
 						)
 					)
 				)
 				(number "21"
 					(effects
 						(font
-							(size 1.27 1.27)
+							(size 1.016 1.016)
 						)
 					)
 				)
 			)
 			(pin bidirectional line
-				(at 10.16 -29.21 90)
-				(length 2.54)
-				(name "D11"
+				(at -50.8 7.62 0)
+				(length 5.08)
+				(name "D11/AD11/DIGIO5/GIP5/GPO5/MII_TXD0"
 					(effects
 						(font
-							(size 1.27 1.27)
+							(size 1.016 1.016)
 						)
 					)
 				)
 				(number "22"
 					(effects
 						(font
-							(size 1.27 1.27)
+							(size 1.016 1.016)
 						)
 					)
 				)
 			)
 			(pin bidirectional line
-				(at 12.7 -29.21 90)
-				(length 2.54)
-				(name "D10"
+				(at -50.8 5.08 0)
+				(length 5.08)
+				(name "D10/AD10/DIGIO4/GIP4/GPO4/MII_TXEN"
 					(effects
 						(font
-							(size 1.27 1.27)
+							(size 1.016 1.016)
 						)
 					)
 				)
 				(number "23"
 					(effects
 						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-			)
-			(pin power_in line
-				(at 15.24 -29.21 90)
-				(length 2.54)
-				(name "VDDCR"
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-				(number "24"
-					(effects
-						(font
-							(size 1.27 1.27)
+							(size 1.016 1.016)
 						)
 					)
 				)
 			)
 			(pin bidirectional line
-				(at 17.78 -29.21 90)
-				(length 2.54)
-				(name "A1"
+				(at -50.8 0 0)
+				(length 5.08)
+				(name "A1/ALELO/OE_EXT/MII_CLK25"
 					(effects
 						(font
-							(size 1.27 1.27)
+							(size 1.016 1.016)
 						)
 					)
 				)
 				(number "25"
 					(effects
 						(font
-							(size 1.27 1.27)
+							(size 1.016 1.016)
 						)
 					)
 				)
 			)
 			(pin bidirectional line
-				(at 20.32 -29.21 90)
-				(length 2.54)
-				(name "A3"
+				(at -50.8 -2.54 0)
+				(length 5.08)
+				(name "A3/DIGIO11/GPI11/GPO11/MII_RXDV"
 					(effects
 						(font
-							(size 1.27 1.27)
+							(size 1.016 1.016)
 						)
 					)
 				)
 				(number "26"
 					(effects
 						(font
-							(size 1.27 1.27)
+							(size 1.016 1.016)
 						)
 					)
 				)
 			)
 			(pin bidirectional line
-				(at 22.86 -29.21 90)
-				(length 2.54)
-				(name "A4"
+				(at -50.8 -5.08 0)
+				(length 5.08)
+				(name "A4/DIGIO12/GPI12/GPO12/MII_RXD0"
 					(effects
 						(font
-							(size 1.27 1.27)
+							(size 1.016 1.016)
 						)
 					)
 				)
 				(number "27"
 					(effects
 						(font
-							(size 1.27 1.27)
+							(size 1.016 1.016)
 						)
 					)
 				)
 			)
 			(pin bidirectional line
-				(at 25.4 -29.21 90)
-				(length 2.54)
-				(name "CS"
+				(at -50.8 -7.62 0)
+				(length 5.08)
+				(name "CS/DIGIO13/GPI13/GPO13/MII_RXD1"
 					(effects
 						(font
-							(size 1.27 1.27)
+							(size 1.016 1.016)
 						)
 					)
 				)
 				(number "28"
 					(effects
 						(font
-							(size 1.27 1.27)
+							(size 1.016 1.016)
 						)
 					)
 				)
 			)
 			(pin bidirectional line
-				(at 27.94 -29.21 90)
-				(length 2.54)
-				(name "A2"
+				(at -50.8 -10.16 0)
+				(length 5.08)
+				(name "A2/ALEHI/DIGIO10/GPI10/GPO10/LINKACTLED2/MII_LINKPOL"
 					(effects
 						(font
-							(size 1.27 1.27)
+							(size 1.016 1.016)
 						)
 					)
 				)
 				(number "29"
 					(effects
 						(font
-							(size 1.27 1.27)
+							(size 1.016 1.016)
 						)
 					)
 				)
 			)
 			(pin bidirectional line
-				(at 30.48 -29.21 90)
-				(length 2.54)
-				(name "WR"
+				(at -50.8 -12.7 0)
+				(length 5.08)
+				(name "WR/ENB/DIGIO14/GPI14/GPO14/MII_RXD2"
 					(effects
 						(font
-							(size 1.27 1.27)
+							(size 1.016 1.016)
 						)
 					)
 				)
 				(number "30"
 					(effects
 						(font
-							(size 1.27 1.27)
+							(size 1.016 1.016)
 						)
 					)
 				)
 			)
 			(pin bidirectional line
-				(at 33.02 -29.21 90)
-				(length 2.54)
-				(name "RD"
+				(at -50.8 -15.24 0)
+				(length 5.08)
+				(name "RD/RD_WR/DIGIO15/GPI15/GPO15/MII_RXD3"
 					(effects
 						(font
-							(size 1.27 1.27)
+							(size 1.016 1.016)
 						)
 					)
 				)
 				(number "31"
 					(effects
 						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-			)
-			(pin power_in line
-				(at 35.56 -29.21 90)
-				(length 2.54)
-				(name "VDDIO"
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-				(number "32"
-					(effects
-						(font
-							(size 1.27 1.27)
+							(size 1.016 1.016)
 						)
 					)
 				)
 			)
 			(pin bidirectional line
-				(at 48.26 -25.4 180)
-				(length 2.54)
-				(name "D15"
+				(at 53.34 60.96 180)
+				(length 5.08)
+				(name "A0/D15/AD15/DIGIO9/GPI9/GPO9/MII_RXER"
 					(effects
 						(font
-							(size 1.27 1.27)
+							(size 1.016 1.016)
 						)
 					)
 				)
 				(number "33"
 					(effects
 						(font
-							(size 1.27 1.27)
+							(size 1.016 1.016)
 						)
 					)
 				)
 			)
 			(pin bidirectional line
-				(at 48.26 -22.86 180)
-				(length 2.54)
-				(name "SYNC0"
+				(at 53.34 58.42 180)
+				(length 5.08)
+				(name "SYNC0/LATCH0"
 					(effects
 						(font
-							(size 1.27 1.27)
+							(size 1.016 1.016)
 						)
 					)
 				)
 				(number "34"
 					(effects
 						(font
-							(size 1.27 1.27)
+							(size 1.016 1.016)
 						)
 					)
 				)
 			)
 			(pin bidirectional line
-				(at 48.26 -20.32 180)
-				(length 2.54)
-				(name "D3"
+				(at 53.34 55.88 180)
+				(length 5.08)
+				(name "D3/AD3/WD_TRIG/SIO3"
 					(effects
 						(font
-							(size 1.27 1.27)
+							(size 1.016 1.016)
 						)
 					)
 				)
 				(number "35"
 					(effects
 						(font
-							(size 1.27 1.27)
+							(size 1.016 1.016)
 						)
 					)
 				)
 			)
 			(pin bidirectional line
-				(at 48.26 -17.78 180)
-				(length 2.54)
-				(name "D6"
+				(at 53.34 53.34 180)
+				(length 5.08)
+				(name "D6/AD6/DIGIO0/GIP0/GPO0/MII_RXCLK"
 					(effects
 						(font
-							(size 1.27 1.27)
+							(size 1.016 1.016)
 						)
 					)
 				)
 				(number "36"
 					(effects
 						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-			)
-			(pin power_in line
-				(at 48.26 -15.24 180)
-				(length 2.54)
-				(name "VVDIO"
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-				(number "37"
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-			)
-			(pin power_in line
-				(at 48.26 -12.7 180)
-				(length 2.54)
-				(name "VDDCR"
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-				(number "38"
-					(effects
-						(font
-							(size 1.27 1.27)
+							(size 1.016 1.016)
 						)
 					)
 				)
 			)
 			(pin bidirectional line
-				(at 48.26 -10.16 180)
-				(length 2.54)
-				(name "D7"
+				(at 53.34 45.72 180)
+				(length 5.08)
+				(name "D7/AD7/DIGIO1/GPI1/GPO1/MII_MDC"
 					(effects
 						(font
-							(size 1.27 1.27)
+							(size 1.016 1.016)
 						)
 					)
 				)
 				(number "39"
 					(effects
 						(font
-							(size 1.27 1.27)
+							(size 1.016 1.016)
 						)
 					)
 				)
 			)
 			(pin bidirectional line
-				(at 48.26 -7.62 180)
-				(length 2.54)
-				(name "D8"
+				(at 53.34 38.1 180)
+				(length 5.08)
+				(name "EESDA/TMS"
 					(effects
 						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-				(number "40"
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-			)
-			(pin power_in line
-				(at 48.26 -5.08 180)
-				(length 2.54)
-				(name "GND"
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-				(number "41"
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-			)
-			(pin bidirectional line
-				(at 48.26 -2.54 180)
-				(length 2.54)
-				(name "I2C_SDL"
-					(effects
-						(font
-							(size 1.27 1.27)
+							(size 1.016 1.016)
 						)
 					)
 				)
 				(number "42"
 					(effects
 						(font
-							(size 1.27 1.27)
+							(size 1.016 1.016)
 						)
 					)
 				)
 			)
 			(pin bidirectional line
-				(at 48.26 0 180)
-				(length 2.54)
-				(name "I2C_SCL"
+				(at 53.34 35.56 180)
+				(length 5.08)
+				(name "EESCL/TCK"
 					(effects
 						(font
-							(size 1.27 1.27)
+							(size 1.016 1.016)
 						)
 					)
 				)
 				(number "43"
 					(effects
 						(font
-							(size 1.27 1.27)
+							(size 1.016 1.016)
 						)
 					)
 				)
 			)
-			(pin output line
-				(at 48.26 2.54 180)
-				(length 2.54)
+			(pin bidirectional line
+				(at 53.34 33.02 180)
+				(length 5.08)
 				(name "IRQ"
 					(effects
 						(font
-							(size 1.27 1.27)
+							(size 1.016 1.016)
 						)
 					)
 				)
 				(number "44"
 					(effects
 						(font
-							(size 1.27 1.27)
+							(size 1.016 1.016)
 						)
 					)
 				)
 			)
-			(pin output line
-				(at 48.26 5.08 180)
-				(length 2.54)
-				(name "GPIO2"
+			(pin bidirectional line
+				(at 53.34 30.48 180)
+				(length 5.08)
+				(name "RUNLED/E2PSIZE"
 					(effects
 						(font
-							(size 1.27 1.27)
+							(size 1.016 1.016)
 						)
 					)
 				)
 				(number "45"
 					(effects
 						(font
-							(size 1.27 1.27)
+							(size 1.016 1.016)
 						)
 					)
 				)
 			)
 			(pin bidirectional line
-				(at 48.26 7.62 180)
-				(length 2.54)
-				(name "GPIO1"
+				(at 53.34 27.94 180)
+				(length 5.08)
+				(name "LINKACTLED1/TDI/CHIP_MODE1"
 					(effects
 						(font
-							(size 1.27 1.27)
+							(size 1.016 1.016)
 						)
 					)
 				)
 				(number "46"
 					(effects
 						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-			)
-			(pin power_in line
-				(at 48.26 10.16 180)
-				(length 2.54)
-				(name "VDDIO"
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-				(number "47"
-					(effects
-						(font
-							(size 1.27 1.27)
+							(size 1.016 1.016)
 						)
 					)
 				)
 			)
 			(pin bidirectional line
-				(at 48.26 12.7 180)
-				(length 2.54)
-				(name "GPIO0"
+				(at 53.34 22.86 180)
+				(length 5.08)
+				(name "LINKACTLED0/TDO/CHIP_MODE0"
 					(effects
 						(font
-							(size 1.27 1.27)
+							(size 1.016 1.016)
 						)
 					)
 				)
 				(number "48"
 					(effects
 						(font
-							(size 1.27 1.27)
+							(size 1.016 1.016)
 						)
 					)
 				)
 			)
 			(pin bidirectional line
-				(at 35.56 16.51 270)
-				(length 2.54)
-				(name "D4"
+				(at 53.34 20.32 180)
+				(length 5.08)
+				(name "D4/AD4/DIGIO3/GPI3/GPO3/MII_LINK"
 					(effects
 						(font
-							(size 1.27 1.27)
+							(size 1.016 1.016)
 						)
 					)
 				)
 				(number "49"
 					(effects
 						(font
-							(size 1.27 1.27)
+							(size 1.016 1.016)
 						)
 					)
 				)
 			)
 			(pin bidirectional line
-				(at 33.02 16.51 270)
-				(length 2.54)
-				(name "D5_SCS#"
+				(at 53.34 17.78 180)
+				(length 5.08)
+				(name "D5/AD5/OUTVALID/SCS#"
 					(effects
 						(font
-							(size 1.27 1.27)
+							(size 1.016 1.016)
 						)
 					)
 				)
 				(number "50"
 					(effects
 						(font
-							(size 1.27 1.27)
+							(size 1.016 1.016)
 						)
 					)
 				)
 			)
-			(pin power_in line
-				(at 30.48 16.51 270)
-				(length 2.54)
+			(pin bidirectional line
+				(at 53.34 15.24 180)
+				(length 5.08)
 				(name "VDD33TXRX1"
 					(effects
 						(font
-							(size 1.27 1.27)
+							(size 1.016 1.016)
 						)
 					)
 				)
 				(number "51"
 					(effects
 						(font
-							(size 1.27 1.27)
+							(size 1.016 1.016)
 						)
 					)
 				)
 			)
 			(pin bidirectional line
-				(at 27.94 16.51 270)
-				(length 2.54)
+				(at 53.34 12.7 180)
+				(length 5.08)
 				(name "TXNA"
 					(effects
 						(font
-							(size 1.27 1.27)
+							(size 1.016 1.016)
 						)
 					)
 				)
 				(number "52"
 					(effects
 						(font
-							(size 1.27 1.27)
+							(size 1.016 1.016)
 						)
 					)
 				)
 			)
 			(pin bidirectional line
-				(at 25.4 16.51 270)
-				(length 2.54)
+				(at 53.34 10.16 180)
+				(length 5.08)
 				(name "TXPA"
 					(effects
 						(font
-							(size 1.27 1.27)
+							(size 1.016 1.016)
 						)
 					)
 				)
 				(number "53"
 					(effects
 						(font
-							(size 1.27 1.27)
+							(size 1.016 1.016)
 						)
 					)
 				)
 			)
 			(pin bidirectional line
-				(at 22.86 16.51 270)
-				(length 2.54)
+				(at 53.34 7.62 180)
+				(length 5.08)
 				(name "RXNA"
 					(effects
 						(font
-							(size 1.27 1.27)
+							(size 1.016 1.016)
 						)
 					)
 				)
 				(number "54"
 					(effects
 						(font
-							(size 1.27 1.27)
+							(size 1.016 1.016)
 						)
 					)
 				)
 			)
 			(pin bidirectional line
-				(at 20.32 16.51 270)
-				(length 2.54)
+				(at 53.34 5.08 180)
+				(length 5.08)
 				(name "RXPA"
 					(effects
 						(font
-							(size 1.27 1.27)
+							(size 1.016 1.016)
 						)
 					)
 				)
 				(number "55"
 					(effects
 						(font
-							(size 1.27 1.27)
+							(size 1.016 1.016)
 						)
 					)
 				)
 			)
-			(pin power_in line
-				(at 17.78 16.51 270)
-				(length 2.54)
+			(pin bidirectional line
+				(at 53.34 2.54 180)
+				(length 5.08)
 				(name "VDD12TX1"
 					(effects
 						(font
-							(size 1.27 1.27)
+							(size 1.016 1.016)
 						)
 					)
 				)
 				(number "56"
 					(effects
 						(font
-							(size 1.27 1.27)
+							(size 1.016 1.016)
 						)
 					)
 				)
 			)
-			(pin input line
-				(at 15.24 16.51 270)
-				(length 2.54)
+			(pin bidirectional line
+				(at 53.34 0 180)
+				(length 5.08)
 				(name "RBIAS"
 					(effects
 						(font
-							(size 1.27 1.27)
+							(size 1.016 1.016)
 						)
 					)
 				)
 				(number "57"
 					(effects
 						(font
-							(size 1.27 1.27)
+							(size 1.016 1.016)
 						)
 					)
 				)
 			)
-			(pin power_in line
-				(at 12.7 16.51 270)
-				(length 2.54)
+			(pin bidirectional line
+				(at 53.34 -2.54 180)
+				(length 5.08)
 				(name "VDD33BIAS"
 					(effects
 						(font
-							(size 1.27 1.27)
+							(size 1.016 1.016)
 						)
 					)
 				)
 				(number "58"
 					(effects
 						(font
-							(size 1.27 1.27)
+							(size 1.016 1.016)
 						)
 					)
 				)
 			)
-			(pin power_in line
-				(at 10.16 16.51 270)
-				(length 2.54)
+			(pin bidirectional line
+				(at 53.34 -5.08 180)
+				(length 5.08)
 				(name "VDD12TX2"
 					(effects
 						(font
-							(size 1.27 1.27)
+							(size 1.016 1.016)
 						)
 					)
 				)
 				(number "59"
 					(effects
 						(font
-							(size 1.27 1.27)
+							(size 1.016 1.016)
 						)
 					)
 				)
 			)
 			(pin bidirectional line
-				(at 7.62 16.51 270)
-				(length 2.54)
+				(at 53.34 -7.62 180)
+				(length 5.08)
 				(name "RXPB"
 					(effects
 						(font
-							(size 1.27 1.27)
+							(size 1.016 1.016)
 						)
 					)
 				)
 				(number "60"
 					(effects
 						(font
-							(size 1.27 1.27)
+							(size 1.016 1.016)
 						)
 					)
 				)
 			)
 			(pin bidirectional line
-				(at 5.08 16.51 270)
-				(length 2.54)
+				(at 53.34 -10.16 180)
+				(length 5.08)
 				(name "RXNB"
 					(effects
 						(font
-							(size 1.27 1.27)
+							(size 1.016 1.016)
 						)
 					)
 				)
 				(number "61"
 					(effects
 						(font
-							(size 1.27 1.27)
+							(size 1.016 1.016)
 						)
 					)
 				)
 			)
 			(pin bidirectional line
-				(at 2.54 16.51 270)
-				(length 2.54)
+				(at 53.34 -12.7 180)
+				(length 5.08)
 				(name "TXPB"
 					(effects
 						(font
-							(size 1.27 1.27)
+							(size 1.016 1.016)
 						)
 					)
 				)
 				(number "62"
 					(effects
 						(font
-							(size 1.27 1.27)
+							(size 1.016 1.016)
 						)
 					)
 				)
 			)
 			(pin bidirectional line
-				(at 0 16.51 270)
-				(length 2.54)
+				(at 53.34 -15.24 180)
+				(length 5.08)
 				(name "TXNB"
 					(effects
 						(font
-							(size 1.27 1.27)
+							(size 1.016 1.016)
 						)
 					)
 				)
 				(number "63"
 					(effects
 						(font
-							(size 1.27 1.27)
+							(size 1.016 1.016)
 						)
 					)
 				)
 			)
-			(pin power_in line
-				(at -2.54 16.51 270)
-				(length 2.54)
+			(pin bidirectional line
+				(at 53.34 -17.78 180)
+				(length 5.08)
 				(name "VDD33TXRX2"
 					(effects
 						(font
-							(size 1.27 1.27)
+							(size 1.016 1.016)
 						)
 					)
 				)
 				(number "64"
 					(effects
 						(font
-							(size 1.27 1.27)
+							(size 1.016 1.016)
+						)
+					)
+				)
+			)
+		)
+		(symbol "LAN9252_1_0"
+			(pin power_in line
+				(at -50.8 55.88 0)
+				(length 5.08)
+				(name "OSCVDD12"
+					(effects
+						(font
+							(size 1.016 1.016)
+						)
+					)
+				)
+				(number "3"
+					(effects
+						(font
+							(size 1.016 1.016)
+						)
+					)
+				)
+			)
+			(pin power_in line
+				(at -50.8 53.34 0)
+				(length 5.08)
+				(name "OSCVSS"
+					(effects
+						(font
+							(size 1.016 1.016)
+						)
+					)
+				)
+				(number "4"
+					(effects
+						(font
+							(size 1.016 1.016)
+						)
+					)
+				)
+			)
+			(pin power_in line
+				(at -50.8 50.8 0)
+				(length 5.08)
+				(name "VDD33"
+					(effects
+						(font
+							(size 1.016 1.016)
+						)
+					)
+				)
+				(number "5"
+					(effects
+						(font
+							(size 1.016 1.016)
+						)
+					)
+				)
+			)
+			(pin power_in line
+				(at -50.8 48.26 0)
+				(length 5.08)
+				(name "VDDCR0"
+					(effects
+						(font
+							(size 1.016 1.016)
+						)
+					)
+				)
+				(number "6"
+					(effects
+						(font
+							(size 1.016 1.016)
+						)
+					)
+				)
+			)
+			(pin power_in line
+				(at -50.8 45.72 0)
+				(length 5.08)
+				(name "REG_EN"
+					(effects
+						(font
+							(size 1.016 1.016)
+						)
+					)
+				)
+				(number "7"
+					(effects
+						(font
+							(size 1.016 1.016)
+						)
+					)
+				)
+			)
+			(pin power_in line
+				(at -50.8 43.18 0)
+				(length 5.08)
+				(name "FXLOSEN"
+					(effects
+						(font
+							(size 1.016 1.016)
+						)
+					)
+				)
+				(number "8"
+					(effects
+						(font
+							(size 1.016 1.016)
+						)
+					)
+				)
+			)
+			(pin power_in line
+				(at -50.8 40.64 0)
+				(length 5.08)
+				(name "FXSDA/FXLOSA/FXSDENA"
+					(effects
+						(font
+							(size 1.016 1.016)
+						)
+					)
+				)
+				(number "9"
+					(effects
+						(font
+							(size 1.016 1.016)
+						)
+					)
+				)
+			)
+			(pin power_in line
+				(at -50.8 38.1 0)
+				(length 5.08)
+				(name "FXSDB/FXLOSB/FXSDENB"
+					(effects
+						(font
+							(size 1.016 1.016)
+						)
+					)
+				)
+				(number "10"
+					(effects
+						(font
+							(size 1.016 1.016)
+						)
+					)
+				)
+			)
+			(pin power_in line
+				(at -50.8 27.94 0)
+				(length 5.08)
+				(name "VDDIO0"
+					(effects
+						(font
+							(size 1.016 1.016)
+						)
+					)
+				)
+				(number "14"
+					(effects
+						(font
+							(size 1.016 1.016)
+						)
+					)
+				)
+			)
+			(pin power_in line
+				(at -50.8 2.54 0)
+				(length 5.08)
+				(name "VDDCR1"
+					(effects
+						(font
+							(size 1.016 1.016)
+						)
+					)
+				)
+				(number "24"
+					(effects
+						(font
+							(size 1.016 1.016)
+						)
+					)
+				)
+			)
+			(pin power_in line
+				(at -50.8 -17.78 0)
+				(length 5.08)
+				(name "VDDIO2"
+					(effects
+						(font
+							(size 1.016 1.016)
+						)
+					)
+				)
+				(number "32"
+					(effects
+						(font
+							(size 1.016 1.016)
+						)
+					)
+				)
+			)
+			(pin power_in line
+				(at 53.34 50.8 180)
+				(length 5.08)
+				(name "VDDIO3"
+					(effects
+						(font
+							(size 1.016 1.016)
+						)
+					)
+				)
+				(number "37"
+					(effects
+						(font
+							(size 1.016 1.016)
+						)
+					)
+				)
+			)
+			(pin power_in line
+				(at 53.34 48.26 180)
+				(length 5.08)
+				(name "VDDCR2"
+					(effects
+						(font
+							(size 1.016 1.016)
+						)
+					)
+				)
+				(number "38"
+					(effects
+						(font
+							(size 1.016 1.016)
+						)
+					)
+				)
+			)
+			(pin power_in line
+				(at 53.34 43.18 180)
+				(length 5.08)
+				(name "D8/AD8/DIGIO2/GPI2/GPO2/MII_MDIO"
+					(effects
+						(font
+							(size 1.016 1.016)
+						)
+					)
+				)
+				(number "40"
+					(effects
+						(font
+							(size 1.016 1.016)
+						)
+					)
+				)
+			)
+			(pin power_in line
+				(at 53.34 40.64 180)
+				(length 5.08)
+				(name "TESTMODE"
+					(effects
+						(font
+							(size 1.016 1.016)
+						)
+					)
+				)
+				(number "41"
+					(effects
+						(font
+							(size 1.016 1.016)
+						)
+					)
+				)
+			)
+			(pin power_in line
+				(at 53.34 25.4 180)
+				(length 5.08)
+				(name "VDDIO4"
+					(effects
+						(font
+							(size 1.016 1.016)
+						)
+					)
+				)
+				(number "47"
+					(effects
+						(font
+							(size 1.016 1.016)
+						)
+					)
+				)
+			)
+			(pin power_in line
+				(at 12.7 -27.94 90)
+				(length 5.08)
+				(name "VSS"
+					(effects
+						(font
+							(size 1.016 1.016)
+						)
+					)
+				)
+				(number "65"
+					(effects
+						(font
+							(size 1.016 1.016)
 						)
 					)
 				)

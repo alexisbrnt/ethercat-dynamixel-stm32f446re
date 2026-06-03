@@ -8,14 +8,9 @@
 #define Init_MIN_limit		0
 #define HW_EMRG_CLEAR_TEMP	60u
 #define RECONNECT_PERIOD_MS 500u
-static uint32_t last_master_rx_tick = 0;
 
 #define With_GRIPPER		0
 
-uint8_t motor_master_timed_out(void)
-{
-    return (HAL_GetTick() - last_master_rx_tick) > COMM_TIMEOUT_MS;
-}
 
 
 void motor_transition_to(motor_context_t *ctx,
@@ -265,6 +260,7 @@ static void state_off_update(motor_context_t *ctx) {
 		return;
 	}
 	dynamixel2_set_LED(ctx->cmd->id, ctx->cmd->LED_state);
+	read_motor_sensors(ctx);
 
 	if (ctx->cmd->torque_enabled) {
 		motor_transition_to(ctx, &state_operational);
@@ -292,13 +288,14 @@ static void state_error_update(motor_context_t *ctx) {
 	ctx->last_reconnect_ms = now;
 	term_printf("[SAF-004] Attempting motor reconnection...\r\n");
 
-	RELAY_On();
+	//RELAY_On();
+	//   dynamixel2_reboot(ctx->status->id);
 	if (dynamixel2_ping(ctx->status->id)) {
 		term_printf("[SAF-004] Motor found ! Reinitializing...\r\n");
 		motor_transition_to(ctx, &state_init);
 	} else {
 		term_printf("[SAF-004] Motor not responding\r\n");
-		RELAY_Off();
+		//RELAY_Off();
 	}
 }
 

@@ -210,7 +210,7 @@ int main(void) {
 	ecat_slv_init(&config);
 
 	//motor_init(ID_1, &motor_cmd1, &motor_status1);
-	motor_sm_init(&motor_ctx1, &motor_cmd1, &motor_status1, ID_1);
+ 	motor_sm_init(&motor_ctx1, &motor_cmd1, &motor_status1, ID_1);
 
 	/* USER CODE END 2 */
 	mutex_motor = xSemaphoreCreateMutex();

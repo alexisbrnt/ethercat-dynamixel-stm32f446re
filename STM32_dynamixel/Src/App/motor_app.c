@@ -113,5 +113,11 @@ void motor_update_master_watchdog(void) {
 	last_master_rx_tick = HAL_GetTick();
 }
 
+uint8_t motor_master_timed_out(void)
+{
+    return (HAL_GetTick() - last_master_rx_tick) > COMM_TIMEOUT_MS;
+}
+
+
 
 

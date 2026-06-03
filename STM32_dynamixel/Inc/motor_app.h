@@ -71,6 +71,7 @@ void motor_set_target_position(motor_command_t *motor_cmd, int32_t position);
 void motor_set_control_mode(motor_command_t *motor_cmd, int8_t control);
 void motor_set_target_velocity(motor_command_t *motor_cmd, int32_t velocity);
 void motor_enable_torque(motor_command_t *motor_cmd, uint8_t enable);
+uint8_t motor_master_timed_out(void);
 
 int32_t motor_get_present_position(motor_status_t *motor_status);
 motor_state_t motor_get_state(motor_status_t* motor_status);
