@@ -1,14 +1,14 @@
-(footprint "MMZ0603A471ET000"
+(footprint "2920L150_60MR"
 	(version 20260206)
 	(generator "pcbnew")
 	(generator_version "10.0")
 	(layer "F.Cu")
-	(descr "0.6mmX0.3mm")
-	(tags "Ferrite Bead")
-	(property "Reference" "FB**"
+	(descr "2920L150/60MR")
+	(tags "Fuse")
+	(property "Reference" "F**"
 		(at 0 0 0)
 		(layer "F.SilkS")
-		(uuid "b626ec03-b35a-4209-a510-fa7c6e7fbc79")
+		(uuid "e913b046-20b4-4e28-b91e-7d69820e48ab")
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -16,11 +16,11 @@
 			)
 		)
 	)
-	(property "Value" "BEADC0603X33N"
+	(property "Value" "FUSC7451X180N"
 		(at 0 0 0)
 		(layer "F.SilkS")
 		(hide yes)
-		(uuid "8cab5a4c-e697-4df8-af5b-554cf27b15b3")
+		(uuid "bfb8e7e6-639b-409e-85e4-6b9eb3da440f")
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -32,7 +32,7 @@
 		(at 0 0 0)
 		(layer "F.Fab")
 		(hide yes)
-		(uuid "91e67de4-5754-4b75-91da-8575c10956e7")
+		(uuid "547dc3f9-11a3-4498-9623-222083fd2dc6")
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -43,7 +43,7 @@
 		(at 0 0 0)
 		(layer "F.Fab")
 		(hide yes)
-		(uuid "f20d6369-9179-420e-b50f-3da8fa8d8680")
+		(uuid "6ed6fc56-c806-4a93-b96a-3cf7b18bc5e9")
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -53,99 +53,99 @@
 	(attr smd)
 	(duplicate_pad_numbers_are_jumpers no)
 	(fp_line
-		(start 0 -0.05)
-		(end 0 0.05)
+		(start 0 -2.46)
+		(end 0 2.46)
 		(stroke
 			(width 0.2)
 			(type solid)
 		)
 		(layer "F.SilkS")
-		(uuid "12ffd1a8-ac55-465f-a499-c75c5e02edfa")
+		(uuid "d81ce8bf-0467-44ea-856f-3dd0326b9028")
 	)
 	(fp_line
-		(start -0.975 -0.45)
-		(end 0.975 -0.45)
+		(start -4.59 -2.975)
+		(end 4.59 -2.975)
 		(stroke
 			(width 0.05)
 			(type solid)
 		)
 		(layer "F.CrtYd")
-		(uuid "76cf91cb-82fb-4d24-943b-b34a2692cd42")
+		(uuid "22aaffbc-9f39-4530-b6ab-3fec0eec17c9")
 	)
 	(fp_line
-		(start -0.975 0.45)
-		(end -0.975 -0.45)
+		(start -4.59 2.975)
+		(end -4.59 -2.975)
 		(stroke
 			(width 0.05)
 			(type solid)
 		)
 		(layer "F.CrtYd")
-		(uuid "a9f95651-327a-4674-a2c6-986f2999c825")
+		(uuid "70b37786-4a0e-48b4-b9d7-9988afaaebab")
 	)
 	(fp_line
-		(start 0.975 -0.45)
-		(end 0.975 0.45)
+		(start 4.59 -2.975)
+		(end 4.59 2.975)
 		(stroke
 			(width 0.05)
 			(type solid)
 		)
 		(layer "F.CrtYd")
-		(uuid "7aba869d-e510-4440-8b9c-45ea89431745")
+		(uuid "a1e1e2ba-73fd-4e5d-8d62-85c1b11bebf0")
 	)
 	(fp_line
-		(start 0.975 0.45)
-		(end -0.975 0.45)
+		(start 4.59 2.975)
+		(end -4.59 2.975)
 		(stroke
 			(width 0.05)
 			(type solid)
 		)
 		(layer "F.CrtYd")
-		(uuid "c01865fe-b741-4955-be16-bcd7d8021b83")
+		(uuid "144d9183-f6d9-43d4-a980-8d3ef564ca24")
 	)
 	(fp_line
-		(start -0.3 -0.15)
-		(end 0.3 -0.15)
+		(start -3.678 -2.56)
+		(end 3.678 -2.56)
 		(stroke
 			(width 0.1)
 			(type solid)
 		)
 		(layer "F.Fab")
-		(uuid "1f80a09f-67ef-48b3-a439-4ef488e384e9")
+		(uuid "1f1e2a4c-7966-43d3-bc6e-2c4d254d9b95")
 	)
 	(fp_line
-		(start -0.3 0.15)
-		(end -0.3 -0.15)
+		(start -3.678 2.56)
+		(end -3.678 -2.56)
 		(stroke
 			(width 0.1)
 			(type solid)
 		)
 		(layer "F.Fab")
-		(uuid "b9cdd592-b22a-49ec-a2d6-b8209fde8fd6")
+		(uuid "b3f44c08-a320-4b7e-8c0b-5ff9894ae711")
 	)
 	(fp_line
-		(start 0.3 -0.15)
-		(end 0.3 0.15)
+		(start 3.678 -2.56)
+		(end 3.678 2.56)
 		(stroke
 			(width 0.1)
 			(type solid)
 		)
 		(layer "F.Fab")
-		(uuid "6ca9acec-0279-46fe-b4ed-b0663e4cc8b9")
+		(uuid "8b6728e0-c288-4f8e-8f1c-687d9d9d6cd5")
 	)
 	(fp_line
-		(start 0.3 0.15)
-		(end -0.3 0.15)
+		(start 3.678 2.56)
+		(end -3.678 2.56)
 		(stroke
 			(width 0.1)
 			(type solid)
 		)
 		(layer "F.Fab")
-		(uuid "b087bd75-4a2c-4f7c-b9fb-c8a639f0bae7")
+		(uuid "991e26c5-7272-40d2-9137-d3fee4578030")
 	)
 	(fp_text user "${REFERENCE}"
 		(at 0 0 0)
 		(layer "F.Fab")
-		(uuid "62849c8f-747d-4e4a-a189-636c5ca9c432")
+		(uuid "5a3b71ef-ae55-4c2e-87ee-c935be2bcb78")
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -154,19 +154,19 @@
 		)
 	)
 	(pad "1" smd rect
-		(at -0.45 0 90)
-		(size 0.4 0.55)
+		(at -2.89 0)
+		(size 2.9 5.45)
 		(layers "F.Cu" "F.Mask" "F.Paste")
-		(uuid "78941fc7-4ba8-4ac2-801c-d6b90342c33c")
+		(uuid "e1953afb-701b-4ecc-9aef-35122031055f")
 	)
 	(pad "2" smd rect
-		(at 0.45 0 90)
-		(size 0.4 0.55)
+		(at 2.89 0)
+		(size 2.9 5.45)
 		(layers "F.Cu" "F.Mask" "F.Paste")
-		(uuid "91b3bce9-054e-4312-b61b-976a9bdd3173")
+		(uuid "9a073eb3-1a17-4933-8aa3-b1acd7fdd7c0")
 	)
 	(embedded_fonts no)
-	(model "MMZ0603A471ET000.stp"
+	(model "2920L150_60MR.stp"
 		(offset
 			(xyz 0 0 0)
 		)
@@ -177,7 +177,7 @@
 			(xyz 0 0 0)
 		)
 	)
-	(model "/home/alexis/Documents/HIT_internship/PCB design/libs/3D/MMZ0603A471ET000.stp"
+	(model "/home/alexis/Documents/HIT_internship/PCB design/libs/3D/2920L150_60MR.stp"
 		(offset
 			(xyz 0 0 0)
 		)
