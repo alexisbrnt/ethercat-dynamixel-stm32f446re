@@ -2,7 +2,7 @@
  * Includes
  ****************************************************************/
 #include "spi.h"
-
+#include <string.h>
 
 /****************************************************************
  * Data
@@ -59,7 +59,7 @@ void spi_setup(void)
 	SpiHandle.Init.CLKPolarity = SPI_POLARITY_LOW; //SPI_POLARITY_HIGH;
 	SpiHandle.Init.CLKPhase = SPI_PHASE_1EDGE; //SPI_PHASE_2EDGE;
 	SpiHandle.Init.NSS = SPI_NSS_SOFT;
-	SpiHandle.Init.BaudRatePrescaler = SPI_BAUDRATEPRESCALER_8;
+	SpiHandle.Init.BaudRatePrescaler = SPI_BAUDRATEPRESCALER_4;
 	SpiHandle.Init.FirstBit = SPI_FIRSTBIT_MSB;
 	SpiHandle.Init.CRCCalculation = SPI_CRCCALCULATION_DISABLE;
 	SpiHandle.Init.Mode = SPI_MODE_MASTER;
@@ -94,26 +94,32 @@ void spi_unselect(int8_t board)
 
 void spi_write(int8_t board, uint8_t *data, uint8_t size)
 {
-	for (int i = 0; i < size; ++i)
+	/*for (int i = 0; i < size; ++i)
 	{
 		spi_transfer(data[i]);
-	}
+	}*/
+	uint8_t dummy[size];
+	HAL_SPI_TransmitReceive(&SpiHandle, data, dummy, size, HAL_MAX_DELAY);
 }
 
 void spi_read(int8_t board, uint8_t *result, uint8_t size)
 {
-	for (int i = 0; i < size; ++i)
+	/*for (int i = 0; i < size; ++i)
 	{
 		result[i] = spi_transfer(0xFF);
-	}
+	}*/
+	uint8_t dummy_tx[size];
+	memset(dummy_tx, 0xFF, size);
+	HAL_SPI_TransmitReceive(&SpiHandle, dummy_tx,result, size, HAL_MAX_DELAY);
 }
 
 void spi_bidirectionally_transfer(int8_t board, uint8_t *result, uint8_t *data, uint8_t size)
 {
-	for (int i = 0; i < size; ++i)
+	/*for (int i = 0; i < size; ++i)
     {
         result[i] = spi_transfer(data[i]);
-    }
+    }*/
+    HAL_SPI_TransmitReceive(&SpiHandle, data, result, size, HAL_MAX_DELAY);
 }
 
 

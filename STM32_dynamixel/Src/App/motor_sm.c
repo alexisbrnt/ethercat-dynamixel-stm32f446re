@@ -262,6 +262,13 @@ static void state_off_update(motor_context_t *ctx) {
 	dynamixel2_set_LED(ctx->cmd->id, ctx->cmd->LED_state);
 	read_motor_sensors(ctx);
 
+	if (!dynamixel2_ping(ctx->status->id)) {
+			if (++ctx->ping_error_count >= 3) {
+				ctx->ping_error_count = 0;
+				motor_transition_to(ctx, &state_error);
+			}
+			return;
+		}
 	if (ctx->cmd->torque_enabled) {
 		motor_transition_to(ctx, &state_operational);
 	}

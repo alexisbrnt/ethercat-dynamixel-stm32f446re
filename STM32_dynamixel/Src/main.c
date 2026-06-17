@@ -54,6 +54,19 @@ static esc_cfg_t config = { .user_arg = "/dev/lan9252", .use_interrupt = 0,
 		.esc_hw_interrupt_disable = NULL, .esc_hw_eep_handler = NULL,
 		.esc_check_dc_handler = NULL, };
 
+extern volatile uint32_t dbg_time_localtime;
+extern volatile uint32_t dbg_time_state;
+extern volatile uint32_t dbg_time_smact;
+extern volatile uint32_t dbg_time_mbxprocess;
+extern volatile uint32_t dbg_time_coeprocess;
+extern volatile uint32_t dbg_time_xoeprocess;
+extern volatile uint32_t dbg_time_eephandler;
+
+extern volatile uint32_t dbg_time_rxpdoupdate;
+extern volatile uint32_t dbg_time_setoutputs;
+extern volatile uint32_t dbg_time_getinputs;
+extern volatile uint32_t dbg_time_txpdoupdate;
+
 /* USER CODE END PTD */
 
 /* Private define ------------------------------------------------------------*/
@@ -141,13 +154,44 @@ static void task_EtherCAT(void *pvParameters) {
 	}
 
 	TickType_t xLastWakeTime = xTaskGetTickCount();
+	uint32_t print_divider = 0;
+	uint32_t max_cycles = 0;
 	for (;;) {
+		uint32_t t_start = DWT->CYCCNT;
 		ecat_slv();
+		uint32_t t_elapsed = DWT->CYCCNT - t_start;
+
+		if (t_elapsed > max_cycles) {
+			max_cycles = t_elapsed;
+		}
+		if (++print_divider >= 1000) {  // affiche toutes les ~1s à 1ms de cycle
+			print_divider = 0;
+			uint32_t us = max_cycles / (SystemCoreClock / 1000000);
+			term_printf("[DBG] ecat_slv max=%u us (over last 1000 cycles)\r\n",
+					us);
+			max_cycles = 0;
+			term_printf("[DBG] ESC_READ max=%u us \r\n", dbg_time_localtime);
+//			term_printf("[DBG] ESC_STATE max=%u us \r\n", dbg_time_state);
+//			term_printf("[DBG] ESC_SM_ACT max=%u us \r\n", dbg_time_smact);
+//			term_printf("[DBG] mbx_process max=%u us \r\n",
+//					dbg_time_mbxprocess);
+//			term_printf("[DBG] coe_process max=%u us \r\n",
+//					dbg_time_coeprocess);
+//			term_printf("[DBG] xoe_process max=%u us \r\n",
+//					dbg_time_xoeprocess);
+//			term_printf("[DBG] eephandler max=%u us \r\n", dbg_time_eephandler);
+
+//			term_printf("[DBG] rxpdo update max=%u us \r\n",
+//					dbg_time_rxpdoupdate);
+//			term_printf("[DBG] set_outputs max=%u us \r\n",
+//					dbg_time_setoutputs);
+//			term_printf("[DBG] get_inputs max=%u us \r\n", dbg_time_getinputs);
+//			term_printf("[DBG] txpdo update max=%u us \r\n",
+//					dbg_time_txpdoupdate);
+		}
 		vTaskDelayUntil(&xLastWakeTime, pdMS_TO_TICKS(1));
 	}
 }
-
-
 
 static void task_motor(void *pvParameters) {
 	while (!ecat_operational) {
@@ -185,7 +229,9 @@ int main(void) {
 	/* Reset of all peripherals, Initializes the Flash interface and the Systick. */
 
 	HAL_Init();
-
+	CoreDebug->DEMCR |= CoreDebug_DEMCR_TRCENA_Msk;
+	DWT->CYCCNT = 0;
+	DWT->CTRL |= DWT_CTRL_CYCCNTENA_Msk;
 	/* USER CODE BEGIN Init */
 
 	/* USER CODE END Init */
@@ -210,7 +256,7 @@ int main(void) {
 	ecat_slv_init(&config);
 
 	//motor_init(ID_1, &motor_cmd1, &motor_status1);
- 	motor_sm_init(&motor_ctx1, &motor_cmd1, &motor_status1, ID_1);
+	motor_sm_init(&motor_ctx1, &motor_cmd1, &motor_status1, ID_1);
 
 	/* USER CODE END 2 */
 	mutex_motor = xSemaphoreCreateMutex();
