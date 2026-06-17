@@ -241,6 +241,7 @@ class EthercatThread(QtCore.QThread):
                             publish_divider = 0
                             try:
                                 status = self._unpack_inputs(bytes(self.slave.input))
+
                                 self.status_received.emit(status)
                             except Exception as e:
                                 self.error_occurred.emit(f"Unpack:{e}")
@@ -252,7 +253,7 @@ class EthercatThread(QtCore.QThread):
                         self.comm_loss.emit()
                         break
                 elapsed = time.perf_counter() - t0
-                if (wait := 0.002 - elapsed) > 0:
+                if (wait := 0.00097 - elapsed) > 0:
                     time.sleep(wait)
             if self.running:
                 print(f"[EC] Waiting {backoff:.0f}s before reconnection...")
