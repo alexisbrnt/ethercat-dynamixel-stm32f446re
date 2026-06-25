@@ -154,41 +154,41 @@ static void task_EtherCAT(void *pvParameters) {
 	}
 
 	TickType_t xLastWakeTime = xTaskGetTickCount();
-	uint32_t print_divider = 0;
-	uint32_t max_cycles = 0;
+//	uint32_t print_divider = 0;
+//	uint32_t max_cycles = 0;
 	for (;;) {
-		uint32_t t_start = DWT->CYCCNT;
+//		uint32_t t_start = DWT->CYCCNT;
 		ecat_slv();
-		uint32_t t_elapsed = DWT->CYCCNT - t_start;
+//		uint32_t t_elapsed = DWT->CYCCNT - t_start;
 
-		if (t_elapsed > max_cycles) {
-			max_cycles = t_elapsed;
-		}
-		if (++print_divider >= 1000) {  // affiche toutes les ~1s à 1ms de cycle
-			print_divider = 0;
-			uint32_t us = max_cycles / (SystemCoreClock / 1000000);
-			term_printf("[DBG] ecat_slv max=%u us (over last 1000 cycles)\r\n",
-					us);
-			max_cycles = 0;
-			term_printf("[DBG] ESC_READ max=%u us \r\n", dbg_time_localtime);
-//			term_printf("[DBG] ESC_STATE max=%u us \r\n", dbg_time_state);
-//			term_printf("[DBG] ESC_SM_ACT max=%u us \r\n", dbg_time_smact);
-//			term_printf("[DBG] mbx_process max=%u us \r\n",
-//					dbg_time_mbxprocess);
-//			term_printf("[DBG] coe_process max=%u us \r\n",
-//					dbg_time_coeprocess);
-//			term_printf("[DBG] xoe_process max=%u us \r\n",
-//					dbg_time_xoeprocess);
-//			term_printf("[DBG] eephandler max=%u us \r\n", dbg_time_eephandler);
-
-//			term_printf("[DBG] rxpdo update max=%u us \r\n",
-//					dbg_time_rxpdoupdate);
-//			term_printf("[DBG] set_outputs max=%u us \r\n",
-//					dbg_time_setoutputs);
-//			term_printf("[DBG] get_inputs max=%u us \r\n", dbg_time_getinputs);
-//			term_printf("[DBG] txpdo update max=%u us \r\n",
-//					dbg_time_txpdoupdate);
-		}
+//		if (t_elapsed > max_cycles) {
+//			max_cycles = t_elapsed;
+//		}
+//		if (++print_divider >= 1000) {  // affiche toutes les ~1s à 1ms de cycle
+//			print_divider = 0;
+//			uint32_t us = max_cycles / (SystemCoreClock / 1000000);
+////			term_printf("[DBG] ecat_slv max=%u us (over last 1000 cycles)\r\n",
+////					us);
+//			max_cycles = 0;
+////			term_printf("[DBG] ESC_READ max=%u us \r\n", dbg_time_localtime);
+////			term_printf("[DBG] ESC_STATE max=%u us \r\n", dbg_time_state);
+////			term_printf("[DBG] ESC_SM_ACT max=%u us \r\n", dbg_time_smact);
+////			term_printf("[DBG] mbx_process max=%u us \r\n",
+////					dbg_time_mbxprocess);
+////			term_printf("[DBG] coe_process max=%u us \r\n",
+////					dbg_time_coeprocess);
+////			term_printf("[DBG] xoe_process max=%u us \r\n",
+////					dbg_time_xoeprocess);
+////			term_printf("[DBG] eephandler max=%u us \r\n", dbg_time_eephandler);
+//
+////			term_printf("[DBG] rxpdo update max=%u us \r\n",
+////					dbg_time_rxpdoupdate);
+////			term_printf("[DBG] set_outputs max=%u us \r\n",
+////					dbg_time_setoutputs);
+////			term_printf("[DBG] get_inputs max=%u us \r\n", dbg_time_getinputs);
+////			term_printf("[DBG] txpdo update max=%u us \r\n",
+////					dbg_time_txpdoupdate);
+//		}
 		vTaskDelayUntil(&xLastWakeTime, pdMS_TO_TICKS(1));
 	}
 }

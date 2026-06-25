@@ -51,7 +51,7 @@
         "silk_text_upright": false,
         "zones": {
           "border_display_style": 2,
-          "border_hatch_pitch": 0.508,
+          "border_hatch_pitch": 0.5,
           "corner_radius": 0.0,
           "corner_smoothing": 0,
           "fill_mode": 0,
@@ -64,7 +64,7 @@
           "min_island_area": 10.0,
           "min_thickness": 0.2,
           "pad_connection": 2,
-          "remove_islands": 1,
+          "remove_islands": 0,
           "thermal_relief_gap": 0.2,
           "thermal_relief_spoke_width": 0.2
         }
@@ -569,21 +569,23 @@
         "tuning_profile": ""
       },
       {
-        "clearance": 0.2,
-        "diff_pair_gap": 0.2,
-        "diff_pair_width": 0.13,
-        "name": "Ethernet_DP",
+        "clearance": 0.15,
+        "diff_pair_gap": 0.203,
+        "diff_pair_width": 0.115,
+        "name": "ETHERNET_DP",
         "pcb_color": "rgba(0, 0, 0, 0.000)",
-        "priority": 1,
+        "priority": 0,
         "schematic_color": "rgba(0, 0, 0, 0.000)",
-        "track_width": 0.4,
-        "tuning_profile": ""
+        "track_width": 0.138,
+        "tuning_profile": "",
+        "via_diameter": 0.5,
+        "via_drill": 0.2
       },
       {
         "clearance": 0.2,
         "name": "SPI",
         "pcb_color": "rgba(0, 0, 0, 0.000)",
-        "priority": 0,
+        "priority": 1,
         "schematic_color": "rgba(0, 0, 0, 0.000)",
         "track_width": 0.2,
         "tuning_profile": ""
@@ -608,19 +610,19 @@
         "pattern": "+12V"
       },
       {
-        "netclass": "Ethernet_DP",
+        "netclass": "ETHERNET_DP",
         "pattern": "/TXA_P"
       },
       {
-        "netclass": "Ethernet_DP",
+        "netclass": "ETHERNET_DP",
         "pattern": "/TXA_N"
       },
       {
-        "netclass": "Ethernet_DP",
+        "netclass": "ETHERNET_DP",
         "pattern": "/RXA_P"
       },
       {
-        "netclass": "Ethernet_DP",
+        "netclass": "ETHERNET_DP",
         "pattern": "/RXA_N"
       },
       {
@@ -642,6 +644,26 @@
       {
         "netclass": "SPI",
         "pattern": "/SCS#"
+      },
+      {
+        "netclass": "12V_PWR",
+        "pattern": "/VIN"
+      },
+      {
+        "netclass": "ETHERNET_DP",
+        "pattern": "/TX_P"
+      },
+      {
+        "netclass": "ETHERNET_DP",
+        "pattern": "/TX_N"
+      },
+      {
+        "netclass": "ETHERNET_DP",
+        "pattern": "/RX_N"
+      },
+      {
+        "netclass": "Default",
+        "pattern": "/RX_P"
       }
     ]
   },
@@ -881,7 +903,7 @@
         "uuid": "8168c6fe-931b-42ad-8cbf-e4fae649ebcb"
       }
     ],
-    "used_designators": "#PWR31,#PWR85-87,D4-5,R34-35,F1",
+    "used_designators": "#FLG5,#FLG12-14,J5,U1-2,H1-4,T1,TP1-9,R13-14,R40-47,IC2,D1-3,D8,C50-51,#PWR23,#PWR26,#PWR94-108",
     "variants": []
   },
   "sheets": [
